@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>yocotizoisapre.cl — Demo interactivo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230F172A'/%3E%3Cpolygon points='18,8 6,30 28,30' fill='%232563EB'/%3E%3Cpolygon points='22,8 34,30 10,30' fill='%2314BBA6' opacity='0.94'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* paleta de marca yocotizoisapre */
+    --blue-1:#0A1F44; --blue-2:#2563EB; --blue-3:#EEF3FF;
+    --teal:#14BBA6; --teal-dark:#0e9483; --teal-light:#e6f9f6;
+    --green:#0fae6b; --green-dark:#0a8f57;
+    --amber:#f59e0b;
+    --grey:#64748b; --dark:#0F172A; --border:#E7EAF0;
+    --shadow-xs:0 1px 2px rgba(15,23,42,.05);
+    --shadow-sm:0 2px 10px rgba(15,23,42,.06);
+    --shadow-md:0 10px 28px rgba(15,23,42,.08);
+    --shadow-lg:0 24px 56px rgba(15,23,42,.16);
+    --ease:cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#FAFBFC;color:var(--dark);-webkit-font-smoothing:antialiased;font-feature-settings:'cv11' 1;}
+  ::selection{background:var(--teal-light);color:var(--dark);}
+  button, select, input{font-family:inherit;}
+  .chip, .btn-primary, .btn-ghost, .btn-clear, .icon-btn, .user-chip, .check-row, .filter-card-head, .plan-card, .adv-row, .how-card, .adv-ic, .cta-btn{transition:all .18s var(--ease);}
+  .disclaimer{background:var(--dark);color:#94A3B8;font-size:11.5px;text-align:center;padding:9px 16px;line-height:1.6;letter-spacing:.1px;}
+  .disclaimer strong{color:#7DD3FC;font-weight:700;letter-spacing:.3px;}
+  header.topbar{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+  .topbar-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:15px 24px;}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18.5px;letter-spacing:-.3px;color:var(--dark);cursor:pointer;}
+  .logo .brand-icon{width:23px;height:23px;flex:none;}
+  .logo b{color:var(--teal);font-weight:800;}
+  .navlinks{display:flex;gap:28px;font-size:13.5px;font-weight:600;color:var(--grey);}
+  .navlinks a{color:var(--grey);text-decoration:none;cursor:pointer;transition:color .15s var(--ease);}
+  .navlinks a:hover{color:var(--dark);}
+  .navlinks a.exec{color:var(--blue-2);}
+  .topbar-tools{display:flex;align-items:center;gap:10px;}
+  .advisor-tag{background:var(--teal-light);color:var(--teal-dark);font-size:10px;font-weight:800;letter-spacing:.6px;padding:5px 11px;border-radius:20px;}
+  .uf-chip{background:#F5F6F8;color:var(--dark);font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;border:1px solid var(--border);}
+  .icon-btn{width:32px;height:32px;border-radius:9px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);border:1px solid transparent;}
+  .icon-btn svg{width:16px;height:16px;}
+  .icon-btn:hover{background:#F5F6F8;border-color:var(--border);color:var(--dark);}
+  .user-chip{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 10px 4px 4px;border-radius:20px;background:transparent;border:1px solid var(--border);}
+  .user-chip:hover{background:#F5F6F8;}
+  .user-chip .avatar{width:24px;height:24px;border-radius:50%;background:var(--blue-2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+  body.dark{background:#0A0F1A;color:#E2E8F0;}
+  body.dark header.topbar{background:rgba(10,15,26,.85);border-color:#1E293B;}
+  body.dark .card, body.dark .plan-card, body.dark .filters, body.dark .how-card, body.dark .filter-card, body.dark .adv-row, body.dark .adv-cotiz-top, body.dark .adv-summary, body.dark .exec-card{background:#111827;border-color:#1E293B;color:#E2E8F0;}
+  body.dark .detail-box{background:#151E30;}
+  body.dark .filter-card-head{background:#111827;border-color:#1E293B;color:#E2E8F0;}
+  .container{max-width:1120px;margin:0 auto;padding:0 20px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* ---- Landing ---- */
+  .hero{position:relative;overflow:hidden;text-align:center;padding:78px 24px 68px;color:#fff;
+    background:
+      radial-gradient(1100px 480px at 12% -15%, rgba(37,99,235,.38), transparent 60%),
+      radial-gradient(900px 460px at 100% 5%, rgba(20,187,166,.24), transparent 55%),
+      linear-gradient(170deg,#0A1F44,#0F172A 62%,#0B1220);}
+  .hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 1px, transparent 1px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);opacity:.55;pointer-events:none;}
+  .hero > *{position:relative;z-index:1;}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#BFDBFE;font-size:12px;font-weight:700;letter-spacing:.3px;padding:6px 14px;border-radius:20px;margin-bottom:22px;backdrop-filter:blur(6px);}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none;}
+  .hero h1{font-size:39px;margin:0 0 16px;font-weight:800;letter-spacing:-.6px;line-height:1.16;max-width:680px;margin-inline:auto;}
+  .hero p{opacity:.76;max-width:540px;margin:0 auto 30px;font-size:15.5px;line-height:1.6;}
+  .cta-btn{background:#fff;color:var(--blue-1);border:none;padding:16px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--shadow-lg);display:inline-flex;align-items:center;gap:8px;}
+  .cta-btn:hover{transform:translateY(-2px);box-shadow:0 28px 60px rgba(0,0,0,.3);}
+  .stats{display:flex;justify-content:center;gap:48px;margin-top:46px;flex-wrap:wrap;}
+  .stat{text-align:center;}
+  .stat b{display:block;font-size:25px;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums;}
+  .stat span{font-size:11px;opacity:.62;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}
+  .how{padding:66px 24px;text-align:center;}
+  .how h2{font-size:27px;margin:0 0 8px;font-weight:800;letter-spacing:-.4px;}
+  .how .how-sub{color:var(--grey);font-size:14px;margin-bottom:38px;}
+  .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1020px;margin:0 auto;}
+  .how-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:left;}
+  .how-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:transparent;}
+  .how-card .n{width:32px;height:32px;border-radius:9px;background:var(--blue-3);color:var(--blue-2);display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 0 16px;font-size:13px;}
+  .how-card h4{font-size:14.5px;margin:0 0 6px;font-weight:700;}
+  .how-card p{font-size:12.5px;color:var(--grey);margin:0;line-height:1.5;}
+
+  /* ---- Stepper ---- */
+  .stepper-wrap{max-width:640px;margin:36px auto;padding:0 20px 60px;}
+  .progress{display:flex;gap:6px;margin-bottom:28px;}
+  .progress div{flex:1;height:4px;border-radius:3px;background:var(--border);}
+  .progress div.done{background:var(--dark);}
+  .card{background:#fff;border-radius:20px;padding:32px;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+  .card h2{font-size:20px;margin:0 0 4px;font-weight:800;letter-spacing:-.3px;}
+  .card .sub{color:var(--grey);font-size:13px;margin-bottom:24px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-weight:700;font-size:13px;margin-bottom:7px;color:var(--dark);}
+  .field input, .field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;transition:border-color .15s var(--ease),box-shadow .15s var(--ease);}
+  .field input:focus, .field select:focus{outline:none;border-color:var(--blue-2);box-shadow:0 0 0 3px var(--blue-3);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:9px 15px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;user-select:none;}
+  .chip:hover{border-color:var(--blue-2);color:var(--blue-2);}
+  .chip.selected{background:var(--dark);border-color:var(--dark);color:#fff;}
+  .nav-btns{display:flex;justify-content:space-between;margin-top:26px;}
+  .btn-primary{background:var(--dark);color:#fff;border:none;padding:13px 24px;border-radius:11px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:var(--shadow-xs);}
+  .btn-primary:hover{background:#1E293B;transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+  .btn-ghost{background:#fff;color:var(--dark);border:1.5px solid var(--border);padding:12.5px 20px;border-radius:11px;font-weight:700;cursor:pointer;font-size:13.5px;}
+  .btn-ghost:hover{border-color:var(--dark);}
+
+  /* ---- Results ---- */
+  .results-wrap{max-width:1120px;margin:24px auto 64px;padding:0 20px;display:grid;grid-template-columns:272px 1fr;gap:24px;}
+
+  .filters{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px 20px 18px;align-self:start;position:sticky;top:88px;box-shadow:var(--shadow-xs);}
+  .filters-title{display:flex;align-items:center;gap:10px;margin:0 0 18px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .filters-title .ico{width:30px;height:30px;border-radius:9px;background:#F5F6F8;color:var(--dark);display:flex;align-items:center;justify-content:center;flex:none;}
+  .filters-title .ico svg{width:16px;height:16px;}
+  .filters-title span{font-size:14.5px;font-weight:800;letter-spacing:-.1px;}
+  .filters h4{font-size:12px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.5px;color:var(--grey);font-weight:700;}
+  .filters .fgroup{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #F1F2F5;}
+  .filters .fgroup:last-of-type{border-bottom:none;margin-bottom:16px;padding-bottom:4px;}
+  .filters .chip{font-size:12px;padding:6px 11px;border-radius:8px;}
+  .filters .chip:hover{border-color:var(--blue-2);color:var(--blue-2);}
+  .filters .chip.selected{background:var(--dark);border-color:var(--dark);}
+  .filters .chip.selected:hover{color:#fff;}
+  .filter-label{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--dark);margin-bottom:11px;}
+  .filter-label .fico{width:16px;height:16px;color:var(--grey);flex:none;display:flex;}
+  .filter-label .fico svg{width:16px;height:16px;}
+  .filter-label .fval{margin-left:auto;font-weight:800;color:var(--dark);font-size:13px;font-variant-numeric:tabular-nums;}
+
+  /* slider de precio, estilizado */
+  .price-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(90deg,var(--dark) 0%, var(--dark) var(--fill,80%), #E7EAF0 var(--fill,80%), #E7EAF0 100%);
+    outline:none;cursor:pointer;margin:4px 0 6px;}
+  .price-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--dark);box-shadow:0 2px 6px rgba(15,23,42,.25);cursor:pointer;}
+  .price-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--dark);box-shadow:0 2px 6px rgba(15,23,42,.25);cursor:pointer;}
+  .price-slider::-moz-range-track{height:4px;border-radius:4px;background:#E7EAF0;}
+  .price-hint{display:flex;justify-content:space-between;font-size:10px;color:var(--grey);margin-bottom:8px;font-variant-numeric:tabular-nums;}
+
+  .histogram-bar{flex:1;border-radius:2px 2px 1px 1px;background:var(--dark);opacity:.12;transition:opacity .15s var(--ease);}
+  .histogram-bar:hover{opacity:.5;}
+
+  .filter-select{width:100%;padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);font-size:12.5px;background:#fff;cursor:pointer;transition:border-color .15s var(--ease);}
+  .filter-select:hover, .filter-select:focus{border-color:var(--dark);outline:none;}
+
+  .isapre-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle;}
+
+  .legal-toggle{display:flex;align-items:flex-start;gap:10px;background:#FAFBFC;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;cursor:pointer;}
+  .legal-toggle:hover{border-color:var(--dark);}
+  .legal-toggle input{margin-top:2px;accent-color:var(--dark);width:15px;height:15px;flex:none;}
+  .legal-toggle .lt-title{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+  .legal-toggle .lt-title svg{width:14px;height:14px;flex:none;color:var(--grey);}
+  .legal-toggle .lt-sub{font-size:11px;color:var(--grey);line-height:1.45;}
+
+  .btn-clear{width:100%;background:transparent;color:var(--grey);border:none;padding:11px;font-weight:600;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:9px;}
+  .btn-clear:hover{background:#FEF2F2;color:#DC2626;}
+  .btn-clear svg{width:13px;height:13px;}
+  .results-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .results-head b{font-size:16px;font-weight:800;letter-spacing:-.2px;}
+  .sortbar select{padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:12.5px;background:#fff;}
+  .plan-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+  .plan-card:hover{box-shadow:var(--shadow-md);border-color:transparent;transform:translateY(-1px);}
+  .plan-left{flex:1;min-width:220px;}
+  .plan-isapre{font-size:11.5px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:9px;}
+  .isapre-badge{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:10.5px;color:#fff;flex:none;letter-spacing:.2px;box-shadow:0 2px 6px rgba(15,23,42,.15);border:2px solid #fff;overflow:hidden;}
+  /* los logos reales son horizontales (wordmark), así que la versión "has-logo" pasa a chip rectangular */
+  .isapre-badge.has-logo, .adv-logo.has-logo{background-color:#fff;background-image:none;border-radius:7px;padding:4px 6px;box-shadow:0 1px 3px rgba(15,23,42,.12);border:1px solid var(--border);}
+  .isapre-badge img, .adv-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+  .plan-name{font-size:16.5px;font-weight:700;margin:4px 0 12px;letter-spacing:-.2px;}
+  .cov-row{display:flex;gap:22px;margin-bottom:12px;flex-wrap:wrap;}
+  .cov{min-width:130px;}
+  .cov .lbl{font-size:11px;color:var(--grey);display:flex;justify-content:space-between;margin-bottom:4px;font-weight:500;}
+  .bar{height:5px;border-radius:3px;background:#EFF1F4;overflow:hidden;}
+  .bar span{display:block;height:100%;border-radius:3px;}
+  .bar.hosp span{background:var(--blue-2);}
+  .bar.amb span{background:var(--teal);}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:10.5px;background:#F5F6F8;color:var(--grey);padding:4px 10px;border-radius:7px;font-weight:600;}
+  .plan-right{text-align:right;min-width:150px;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;}
+  .plan-price b{font-size:20px;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums;}
+  .plan-price span{display:block;font-size:11.5px;color:var(--grey);margin-top:2px;}
+  .badge-fit{background:var(--teal-light);color:var(--teal-dark);font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:7px;margin-bottom:8px;display:inline-block;}
+  .btn-sm{padding:9px 17px;border-radius:9px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;margin-top:8px;}
+  .btn-detail{background:var(--dark);color:#fff;}
+  .btn-detail:hover{background:#1E293B;}
+  .no-results{text-align:center;padding:60px 20px;color:var(--grey);}
+
+  /* ---- Advisor compact list (vista asesor, distinta a la de cliente) ---- */
+  .adv-row{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+  .adv-row:hover{box-shadow:var(--shadow-sm);border-color:transparent;}
+  .adv-num{width:20px;font-size:11.5px;color:var(--grey);font-weight:700;text-align:center;flex:none;font-variant-numeric:tabular-nums;}
+  .adv-logo{width:34px;height:34px;border-radius:50%;background:#F5F6F8;color:var(--dark);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none;letter-spacing:.2px;box-shadow:0 2px 6px rgba(15,23,42,.12);border:2px solid #fff;overflow:hidden;}
+  .adv-info{flex:1;min-width:0;}
+  .adv-info b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;}
+  .adv-tags{display:flex;gap:5px;margin-top:4px;}
+  .adv-tags span{font-size:9.5px;background:#F5F6F8;color:var(--grey);padding:2px 8px;border-radius:6px;font-weight:600;}
+  .adv-price{text-align:right;flex:none;width:112px;}
+  .adv-price .from{font-size:9.5px;color:var(--grey);text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
+  .adv-price b{font-size:14px;display:block;font-weight:800;font-variant-numeric:tabular-nums;}
+  .adv-price span{font-size:10.5px;color:var(--grey);}
+  .adv-actions{display:flex;gap:6px;flex:none;}
+  .adv-ic{width:30px;height:30px;border-radius:9px;border:1px solid var(--border);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--grey);}
+  .adv-ic svg{width:15px;height:15px;}
+  .adv-ic:hover{transform:translateY(-1px);box-shadow:var(--shadow-xs);}
+  .adv-ic.c-wa{color:var(--teal-dark);}
+  .adv-ic.c-wa:hover{background:var(--teal-light);border-color:var(--teal);}
+  .adv-ic.c-pdf{color:#DC2626;}
+  .adv-ic.c-pdf:hover{background:#FEF2F2;border-color:#FCA5A5;}
+  .adv-ic.c-price{color:var(--blue-2);}
+  .adv-ic.c-price:hover{background:var(--blue-3);border-color:var(--blue-2);}
+  .adv-ic.c-cov{color:#7C3AED;}
+  .adv-ic.c-cov:hover{background:#F5F3FF;border-color:#C4B5FD;}
+
+  /* ---- Advisor cotizador: todo en una pantalla, editable en línea ---- */
+  .adv-cotiz-top{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:12px;box-shadow:var(--shadow-xs);}
+  .adv-cotiz-top input[type="text"]{border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;flex:1;min-width:170px;transition:border-color .15s var(--ease);}
+  .adv-cotiz-top input[type="text"]:focus{border-color:var(--dark);outline:none;}
+  .adv-cotiz-top select{border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;cursor:pointer;background:#fff;}
+  .adv-range{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--grey);font-weight:600;flex:1;min-width:220px;}
+  .adv-range input[type="range"]{flex:1;}
+  .adv-range b{color:var(--dark);font-size:13px;font-variant-numeric:tabular-nums;}
+  .adv-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:12.5px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:11px 18px;}
+  .adv-summary b{color:var(--dark);font-variant-numeric:tabular-nums;}
+  .filter-chip{background:#F5F6F8;color:var(--dark);font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:14px;}
+
+  /* ---- Tarjetas de filtro individuales: una card por sección, cabecera limpia ---- */
+  .af-filters{display:flex;flex-direction:column;gap:12px;}
+  .filter-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-xs);}
+  .filter-card-head{background:#fff;color:var(--dark);display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:12.5px;font-weight:700;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);}
+  .filter-card-head .fc-ico{width:16px;height:16px;color:var(--grey);flex:none;display:flex;}
+  .filter-card-head .fc-ico svg{width:16px;height:16px;}
+  .filter-card-head .fc-chevron{margin-left:auto;width:20px;height:20px;border-radius:6px;background:#F5F6F8;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--grey);transition:transform .2s var(--ease);}
+  .filter-card-head.collapsed{border-bottom-color:transparent;}
+  .filter-card-head.collapsed .fc-chevron{transform:rotate(-90deg);}
+  .filter-card-body{padding:14px 16px;}
+  .filter-card-head.collapsed + .filter-card-body{display:none;}
+  .filter-card-foot{text-align:center;font-size:10px;font-weight:700;color:var(--grey);letter-spacing:.4px;padding:10px 16px;border-top:1px solid #F1F2F5;text-transform:uppercase;}
+
+  .benef-edad-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;text-align:center;margin-bottom:9px;}
+  .benef-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px;}
+  .benef-add{padding:9px 6px;font-size:11px;border-radius:9px;}
+  .benef-add.cot{color:var(--teal-dark);border-color:var(--teal);}
+  .benef-add.car{color:var(--blue-2);border-color:#BFD3FA;}
+  .factor-total-box{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--grey);border-top:1px solid #F1F2F5;padding-top:11px;margin-top:3px;}
+  .factor-total-box span{font-size:16px;color:var(--dark);text-transform:none;letter-spacing:0;font-weight:800;font-variant-numeric:tabular-nums;}
+
+  .check-row{display:flex;justify-content:space-between;align-items:center;padding:7px 3px;font-size:12.5px;cursor:pointer;border-radius:8px;gap:8px;}
+  .check-row:hover{background:#FAFBFC;}
+  .check-row input[type="checkbox"]{accent-color:var(--dark);margin-right:7px;flex:none;}
+  .check-row .rname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+  .check-row .isapre-factor{color:var(--grey);font-size:10px;font-weight:600;margin-left:4px;}
+  .check-row .count{color:var(--grey);background:#F5F6F8;font-weight:700;font-size:10.5px;padding:2px 8px;border-radius:7px;flex:none;font-variant-numeric:tabular-nums;}
+  .benef-chip{display:flex;align-items:center;gap:8px;background:#FAFBFC;border:1px solid var(--border);border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:12.5px;}
+  .benef-chip .role{font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:.3px;}
+  .benef-chip .role.COT{background:var(--teal-light);color:var(--teal-dark);}
+  .benef-chip .role.CAR{background:var(--blue-3);color:var(--blue-2);}
+  .benef-chip .x{margin-left:auto;cursor:pointer;color:var(--grey);font-weight:700;padding:2px 6px;border-radius:6px;}
+  .benef-chip .x:hover{background:#FEF2F2;color:#DC2626;}
+  .cov-pct-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:11px;}
+  .cov-pct-grid .chip{text-align:center;padding:8px 4px;font-size:11.5px;border-radius:8px;}
+
+  /* ---- Plan detail ---- */
+  .detail-wrap{max-width:700px;margin:32px auto 64px;padding:0 20px;}
+  .detail-head{background:linear-gradient(155deg,var(--blue-1),#132C63);color:#fff;border-radius:20px 20px 0 0;padding:26px 28px;position:relative;overflow:hidden;}
+  .detail-head::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:22px 22px;pointer-events:none;}
+  .detail-head > *{position:relative;}
+  .detail-head .isapre{font-size:11.5px;opacity:.75;text-transform:uppercase;font-weight:700;letter-spacing:.5px;}
+  .detail-head h2{margin:5px 0 12px;font-size:22px;font-weight:800;letter-spacing:-.3px;}
+  .detail-body{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 20px 20px;padding:26px 28px;box-shadow:var(--shadow-sm);}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+  .detail-box{background:#FAFBFC;border:1px solid #F1F2F5;border-radius:12px;padding:15px;}
+  .detail-box .lbl{font-size:11px;color:var(--grey);margin-bottom:5px;font-weight:600;}
+  .detail-box .val{font-size:15px;font-weight:800;letter-spacing:-.2px;}
+  .lock-note{background:#FFF9EE;border:1px solid #FDE9C4;border-radius:12px;padding:15px 16px;font-size:12.5px;color:#92400E;margin:18px 0;line-height:1.55;}
+  .lock-note b{display:block;margin-bottom:4px;font-size:13px;}
+
+  /* ---- Contact form ---- */
+  .contact-wrap{max-width:480px;margin:44px auto 64px;padding:0 20px;}
+  .protect{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--grey);margin:16px 0;line-height:1.5;}
+  .protect input{margin-top:2px;accent-color:var(--dark);}
+
+  /* ---- Thanks ---- */
+  .thanks-wrap{max-width:480px;margin:70px auto;padding:0 20px;text-align:center;}
+  .thanks-ic{width:60px;height:60px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+
+  /* ---- Advisor portal ---- */
+  .exec-wrap{max-width:420px;margin:70px auto;padding:0 20px;}
+  .exec-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:32px;box-shadow:var(--shadow-sm);}
+  .paywall{background:linear-gradient(160deg,var(--blue-1),#1E1B4B);color:#fff;border-radius:20px;padding:30px;text-align:center;}
+  .price-tag{font-size:36px;font-weight:800;margin:10px 0 2px;letter-spacing:-.5px;}
+  .price-tag span{font-size:14px;font-weight:500;opacity:.75;}
+  .plan-feats{text-align:left;font-size:13.5px;line-height:2;margin:16px 0;opacity:.88;}
+  .blurred-preview{margin-top:22px;border-radius:14px;overflow:hidden;position:relative;}
+  .blurred-preview .fake-table{filter:blur(4px);background:#fff;color:#0f172a;padding:14px;font-size:12px;}
+  .blurred-preview .lock-overlay{position:absolute;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-direction:column;gap:6px;}
+  .fake-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;}
+
+  .footer-note{text-align:center;font-size:11.5px;color:var(--grey);padding:36px 20px 56px;}
+</style>
+</head>
+<body>
+
+<div class="disclaimer">
+  <strong>DEMO / PROTOTIPO</strong> — "yocotizoisapre.cl" es un nombre y diseño ilustrativos. Los planes mostrados son una muestra curada con nombres y coberturas realistas (misma estructura de campos que el archivo oficial de la Superintendencia de Salud), no el catastro completo. El portal de asesores es una maqueta visual: no procesa pagos reales ni almacena datos en ningún servidor.
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo" onclick="goTo('landing')">
+      <svg class="brand-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,4 4,34 32,34" fill="url(#gLogoA)"/>
+        <polygon points="23,4 37,34 9,34" fill="url(#gLogoB)" opacity="0.94"/>
+        <defs>
+          <linearGradient id="gLogoA" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0F172A"/>
+            <stop offset="1" stop-color="#2563EB"/>
+          </linearGradient>
+          <linearGradient id="gLogoB" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#14BBA6"/>
+            <stop offset="1" stop-color="#5EEAD4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      yocotizo<b>isapre</b>
+    </div>
+    <nav class="navlinks" id="public-nav">
+      <a onclick="goTo('landing')">Inicio</a>
+      <a onclick="goTo('landing')">Cómo funciona</a>
+      <a class="exec" onclick="goTo('exec-login')">Zona Ejecutivos</a>
+    </nav>
+    <div class="topbar-tools" id="advisor-tools" style="display:none;">
+      <span class="advisor-tag">MODO ASESOR</span>
+      <a onclick="goTo('advisor-cotizador'); renderAdvisorResults();" style="font-size:13px;font-weight:700;color:var(--blue-2);cursor:pointer;">Cotizador</a>
+      <span class="uf-chip">UF <b id="uf-chip-val"></b></span>
+      <span class="icon-btn" title="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></span>
+      <span class="icon-btn" title="Tema" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg></span>
+      <div class="user-chip" onclick="if(confirm('¿Cerrar sesión de asesor?')){ setAdvisorMode(false); goTo(\'landing\'); }">
+        <span class="avatar">E</span> eleazar ▾
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ============ LANDING ============ -->
+  <div class="screen active" id="screen-landing">
+    <div class="hero" style="margin:0 -20px;border-radius:0 0 24px 24px;">
+      <div class="eyebrow"><span class="dot"></span>Comparador independiente de Isapres</div>
+      <h1>Compara planes de Isapre reales y encuentra el que calza con tu perfil</h1>
+      <p>Ingresa tus datos, compara coberturas y precios de todas las isapres, y un asesor certificado te acompaña en el resto del proceso.</p>
+      <button class="cta-btn" onclick="startCotizador()">Cotizar mi plan ahora →</button>
+      <div class="stats">
+        <div class="stat"><b>7</b><span>Isapres</span></div>
+        <div class="stat"><b id="stat-planes">—</b><span>Planes en esta demo</span></div>
+        <div class="stat"><b>100%</b><span>Gratis</span></div>
+      </div>
+    </div>
+    <div class="how">
+      <h2>Cotiza en 4 pasos</h2>
+      <div class="how-sub">Todo el proceso toma menos de 3 minutos, sin registro ni costo.</div>
+      <div class="how-grid">
+        <div class="how-card"><div class="n">1</div><h4>Tu perfil</h4><p>Edad, renta, región y cargas</p></div>
+        <div class="how-card"><div class="n">2</div><h4>Preferencias</h4><p>Isapres, clínicas y tipo de plan</p></div>
+        <div class="how-card"><div class="n">3</div><h4>Compara</h4><p>Revisa coberturas y precios reales</p></div>
+        <div class="how-card"><div class="n">4</div><h4>Un asesor te contacta</h4><p>Confirma valores y coberturas exactas</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STEP 1: PERFIL ============ -->
+  <div class="screen" id="screen-step1">
+    <div class="stepper-wrap">
+      <div class="progress"><div class="done"></div><div></div><div></div></div>
+      <div class="card">
+        <h2>Cuéntanos tu perfil</h2>
+        <div class="sub">Paso 1 de 3 — sin registro, sin costo</div>
+
+        <div class="row2">
+          <div class="field"><label>Edad *</label><input type="number" id="p-edad" placeholder="ej: 34"></div>
+          <div class="field"><label>Región *</label>
+            <select id="p-region">
+              <option>Metropolitana</option><option>Valparaíso</option><option>Biobío</option>
+              <option>La Araucanía</option><option>Los Lagos</option><option>Antofagasta</option>
+              <option>Coquimbo</option><option>O'Higgins</option><option>Maule</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Renta imponible mensual (CLP) *</label>
+          <input type="text" id="p-renta" placeholder="1.200.000" inputmode="numeric">
+          <div id="p-legal-indicator" style="display:none;margin-top:8px;background:var(--blue-3);color:var(--blue-2);border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:700;"></div>
+        </div>
+        <div class="field">
+          <label>Cargas</label>
+          <div class="chip-grid" id="p-cargas">
+            <div class="chip selected" data-v="0">Sin cargas</div>
+            <div class="chip" data-v="1">1</div>
+            <div class="chip" data-v="2">2</div>
+            <div class="chip" data-v="3">3+</div>
+          </div>
+        </div>
+        <div class="nav-btns">
+          <span></span>
+          <button class="btn-primary" onclick="toStep2()">Continuar →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STEP 2: PREFERENCIAS ============ -->
+  <div class="screen" id="screen-step2">
+    <div class="stepper-wrap">
+      <div class="progress"><div class="done"></div><div class="done"></div><div></div></div>
+      <div class="card">
+        <h2>Tus preferencias</h2>
+        <div class="sub">Paso 2 de 3 — puedes dejar campos sin marcar</div>
+
+        <div class="field">
+          <label>Isapres de interés (opcional)</label>
+          <div class="chip-grid" id="p-isapres">
+            <div class="chip" data-v="Banmédica">Banmédica</div>
+            <div class="chip" data-v="Consalud">Consalud</div>
+            <div class="chip" data-v="Colmena">Colmena</div>
+            <div class="chip" data-v="Cruz Blanca">Cruz Blanca</div>
+            <div class="chip" data-v="Vida Tres">Vida Tres</div>
+            <div class="chip" data-v="Nueva Masvida">Nueva Masvida</div>
+            <div class="chip" data-v="Esencial">Esencial</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Clínicas preferidas (opcional)</label>
+          <div class="chip-grid" id="p-clinicas">
+            <div class="chip" data-v="Clínica Alemana">Clínica Alemana</div>
+            <div class="chip" data-v="Clínica Las Condes">Clínica Las Condes</div>
+            <div class="chip" data-v="Clínica Dávila">Clínica Dávila</div>
+            <div class="chip" data-v="Clínica Indisa">Clínica Indisa</div>
+            <div class="chip" data-v="RedSalud">RedSalud</div>
+            <div class="chip" data-v="Clínica Santa María">Clínica Santa María</div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Tipo de plan</label>
+            <select id="p-modalidad">
+              <option value="">Sin preferencia</option>
+              <option>Libre Elección</option>
+              <option>Prestador Preferente</option>
+              <option>Cerrado</option>
+            </select>
+          </div>
+          <div class="field"><label>Presupuesto máx. mensual (UF)</label><input type="number" step="0.1" id="p-presupuesto" placeholder="ej: 4.5"></div>
+        </div>
+        <div class="nav-btns">
+          <button class="btn-ghost" onclick="goTo('step1')">← Atrás</button>
+          <button class="btn-primary" onclick="showResults()">Ver resultados →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="screen" id="screen-results">
+    <div class="results-wrap">
+      <div class="filters">
+        <div class="filters-title"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span>Filtros</span></div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5c0-1.4-1.3-2.5-3-2.5s-3 1-3 2.3c0 1.3 1.1 1.8 3 2.2s3 1 3 2.3c0 1.3-1.3 2.2-3 2.2s-3-1-3-2.2"/></svg></span>Precio máximo<span class="fval"><span id="f-price-val">6.0</span> UF</span></div>
+          <input type="range" class="price-slider" id="f-price" min="1" max="6" step="0.1" value="6" style="--fill:100%;" oninput="document.getElementById('f-price-val').textContent=this.value; this.style.setProperty('--fill', ((this.value-this.min)/(this.max-this.min)*100)+'%'); renderResults();">
+          <div class="price-hint"><span>1 UF</span><span>6 UF</span></div>
+          <div id="f-histogram" style="display:flex;align-items:flex-end;gap:3px;height:32px;margin-top:6px;"></div>
+        </div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7a2 2 0 0 1 2-2h5V3a1 1 0 0 1 1-1 1 1 0 0 1 1 1v2h5a2 2 0 0 1 2 2v14"/><path d="M2 21h20"/><path d="M12 9v6M9 12h6"/></svg></span>Cobertura hospitalaria mín.</div>
+          <div class="chip-grid" id="f-hosp">
+            <div class="chip" data-v="0">Todas</div>
+            <div class="chip" data-v="40">40%+</div>
+            <div class="chip" data-v="60">60%+</div>
+            <div class="chip" data-v="80">80%+</div>
+            <div class="chip" data-v="100">100%</div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 14 6 14 9 5 14 21 17 14 22 14"/></svg></span>Cobertura ambulatoria mín.</div>
+          <div class="chip-grid" id="f-amb">
+            <div class="chip" data-v="0">Todas</div>
+            <div class="chip" data-v="30">30%+</div>
+            <div class="chip" data-v="50">50%+</div>
+            <div class="chip" data-v="70">70%+</div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>Prestador</div>
+          <select id="f-prestador" class="filter-select" onchange="renderResults()">
+            <option value="">Todos los prestadores</option>
+          </select>
+        </div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.59 21.41 21 13a2 2 0 0 0 0-2.83L13.83 3H4a1 1 0 0 0-1 1v9.83a2 2 0 0 0 .59 1.42l8.59 8.59a2 2 0 0 0 2.83 0Z"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/></svg></span>Isapre</div>
+          <div class="chip-grid" id="f-isapre"></div>
+        </div>
+
+        <div class="fgroup">
+          <div class="filter-label"><span class="fico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span>Región</div>
+          <div class="chip-grid" id="f-region"></div>
+        </div>
+
+        <div class="fgroup">
+          <label class="legal-toggle">
+            <input type="checkbox" id="f-legal" onchange="renderResults()">
+            <span>
+              <span class="lt-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-2-2-2 2-3-2-3 2Z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg> Ajustar a mi 7% legal</span>
+              <span class="lt-sub">Muestra cuánto pagarías de tu bolsillo, descontando tu cotización obligatoria.</span>
+            </span>
+          </label>
+        </div>
+
+        <button class="btn-clear" onclick="resetFilters()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg> Limpiar filtros</button>
+      </div>
+      <div>
+        <div id="legal-badge" style="display:none;background:var(--blue-3);color:var(--blue-2);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px;"></div>
+        <div class="results-head">
+          <b id="results-count">0 planes compatibles</b>
+          <div class="sortbar">
+            <select id="sort-select" onchange="renderResults()">
+              <option value="fit">Mejor ajuste</option>
+              <option value="price-asc">Menor precio</option>
+              <option value="hosp-desc">Mayor cobertura hospitalaria</option>
+              <option value="amb-desc">Mayor cobertura ambulatoria</option>
+            </select>
+          </div>
+        </div>
+        <div id="results-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADVISOR COTIZADOR (todo editable en una sola pantalla) ============ -->
+  <div class="screen" id="screen-advisor-cotizador">
+    <div style="margin-top:16px;">
+      <div class="adv-cotiz-top">
+        <input type="text" id="af-search" placeholder="Buscar planes..." oninput="renderAdvisorResults()">
+        <div class="adv-range">
+          <span>Precio máx.</span>
+          <input type="range" class="price-slider" id="af-price" min="1" max="9" step="0.1" value="9" style="--fill:100%;" oninput="document.getElementById('af-price-val').textContent=this.value; this.style.setProperty('--fill', ((this.value-this.min)/(this.max-this.min)*100)+'%'); renderAdvisorResults();">
+          <b id="af-price-val">9.0</b> UF
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="af-legal" onchange="renderAdvisorResults()"> 7%
+        </label>
+        <select id="af-sort" onchange="renderAdvisorResults()">
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="hosp-desc">Mayor cobertura hospitalaria</option>
+          <option value="amb-desc">Mayor cobertura ambulatoria</option>
+        </select>
+      </div>
+
+      <div class="adv-summary">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--teal-dark);"><polyline points="20 6 9 17 4 12"/></svg> <b id="af-count">0</b> de <b id="af-total-planes">0</b> planes</span>
+        <span style="color:var(--grey);">FILTROS:</span>
+        <div id="af-active-filters" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <button class="btn-ghost" style="margin-left:auto;padding:6px 14px;font-size:12px;" onclick="resetAdvisorFilters()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg> Limpiar</button>
+      </div>
+
+      <div class="results-wrap" style="grid-template-columns:270px 1fr;align-items:start;">
+        <div class="af-filters">
+
+          <!-- BENEFICIARIOS -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Beneficiarios</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body">
+              <label style="display:block;font-size:10px;font-weight:800;color:var(--grey);letter-spacing:.4px;margin-bottom:5px;">EDAD</label>
+              <input type="number" id="af-edad-input" placeholder="0" class="benef-edad-input">
+              <div class="benef-btn-row">
+                <button class="btn-ghost benef-add cot" onclick="addBeneficiario('COT')">+ Cotizante</button>
+                <button class="btn-ghost benef-add car" onclick="addBeneficiario('CAR')">+ Carga</button>
+              </div>
+              <div id="af-beneficiarios-list"></div>
+              <div class="factor-total-box">TOTAL FACTORES<span id="af-total-factores">0.00</span></div>
+            </div>
+          </div>
+
+          <!-- ISAPRES -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><line x1="9" y1="7" x2="9" y2="7.01"/><line x1="15" y1="7" x2="15" y2="7.01"/><line x1="9" y1="11" x2="9" y2="11.01"/><line x1="15" y1="11" x2="15" y2="11.01"/><line x1="9" y1="15" x2="9" y2="15.01"/><line x1="15" y1="15" x2="15" y2="15.01"/><line x1="10" y1="22" x2="10" y2="18"/><line x1="14" y1="22" x2="14" y2="18"/></svg></span><span>Isapres</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body" id="af-isapre-list"></div>
+            <div class="filter-card-foot">Total planes: <span id="af-total-planes-foot">0</span></div>
+          </div>
+
+          <!-- ZONAS -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><span>Zonas</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body" id="af-region-list"></div>
+          </div>
+
+          <!-- TIPO DE PLAN -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span><span>Tipo de plan</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body" id="af-modalidad-list"></div>
+          </div>
+
+          <!-- COBERTURA HOSPITALARIA -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7a2 2 0 0 1 2-2h5V3a1 1 0 0 1 1-1 1 1 0 0 1 1 1v2h5a2 2 0 0 1 2 2v14"/><path d="M2 21h20"/><path d="M12 9v6M9 12h6"/></svg></span><span>Cobertura hospitalaria</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body">
+              <select id="af-prestador" class="filter-select" onchange="renderAdvisorResults()">
+                <option value="">Todos los prestadores</option>
+              </select>
+              <div class="cov-pct-grid" id="af-hosp">
+                <div class="chip" data-v="0">Todas</div>
+                <div class="chip" data-v="40">40%+</div>
+                <div class="chip" data-v="45">45%+</div>
+                <div class="chip" data-v="50">50%+</div>
+                <div class="chip" data-v="55">55%+</div>
+                <div class="chip" data-v="60">60%+</div>
+                <div class="chip" data-v="65">65%+</div>
+                <div class="chip" data-v="70">70%+</div>
+                <div class="chip" data-v="75">75%+</div>
+                <div class="chip" data-v="80">80%+</div>
+                <div class="chip" data-v="90">90%+</div>
+                <div class="chip" data-v="100">100%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COBERTURA AMBULATORIA -->
+          <div class="filter-card">
+            <div class="filter-card-head" onclick="toggleFilterCard(this)"><span class="fc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 14 6 14 9 5 14 21 17 14 22 14"/></svg></span><span>Cobertura ambulatoria</span><span class="fc-chevron">▾</span></div>
+            <div class="filter-card-body">
+              <div class="cov-pct-grid" id="af-amb">
+                <div class="chip" data-v="0">Todas</div>
+                <div class="chip" data-v="30">30%+</div>
+                <div class="chip" data-v="40">40%+</div>
+                <div class="chip" data-v="50">50%+</div>
+                <div class="chip" data-v="60">60%+</div>
+                <div class="chip" data-v="70">70%+</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-clear" onclick="resetAdvisorFilters()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg> Limpiar filtros</button>
+        </div>
+        <div id="af-results-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PLAN DETAIL ============ -->
+  <div class="screen" id="screen-detail">
+    <div class="detail-wrap">
+      <div class="detail-head">
+        <div class="isapre" id="d-isapre">ISAPRE</div>
+        <h2 id="d-nombre">Nombre del plan</h2>
+        <div id="d-price" style="font-size:22px;font-weight:800;"></div>
+      </div>
+      <div class="detail-body">
+
+        <div style="display:flex;gap:4px;border-bottom:1.5px solid var(--border);margin-bottom:18px;">
+          <div class="detail-tab active" data-tab="coberturas" onclick="switchDetailTab('coberturas')" style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid var(--blue-2);color:var(--blue-2);">Coberturas</div>
+          <div class="detail-tab" data-tab="resumen" onclick="switchDetailTab('resumen')" style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--grey);">Resumen</div>
+          <div class="detail-tab" id="tab-contrato-btn" data-tab="contrato" onclick="switchDetailTab('contrato')" style="display:none;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--grey);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;vertical-align:-2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg> Contrato (PDF) <span style="background:var(--teal-light);color:var(--teal-dark);font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:8px;margin-left:2px;">ASESOR</span></div>
+        </div>
+
+        <!-- TAB: Coberturas (desglose por prestador) -->
+        <div class="detail-tab-panel" id="tabpanel-coberturas">
+          <div id="d-coberturas-list"></div>
+        </div>
+
+        <!-- TAB: Resumen -->
+        <div class="detail-tab-panel" id="tabpanel-resumen" style="display:none;">
+          <div class="detail-box" style="margin-bottom:14px;">
+            <div class="lbl">Total mensual a pagar</div>
+            <div class="val" id="d-total" style="font-size:20px;">—</div>
+            <div id="d-total-breakdown" style="font-size:11.5px;color:var(--grey);margin-top:4px;"></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-box"><div class="lbl">Cobertura hospitalaria (prestador principal)</div><div class="val" id="d-hosp">—</div></div>
+            <div class="detail-box"><div class="lbl">Cobertura ambulatoria (prestador principal)</div><div class="val" id="d-amb">—</div></div>
+            <div class="detail-box"><div class="lbl">Modalidad</div><div class="val" id="d-modalidad">—</div></div>
+            <div class="detail-box"><div class="lbl">Tope anual</div><div class="val" id="d-tope">—</div></div>
+          </div>
+          <div class="field"><label>Prestadores asociados</label><div class="tags" id="d-clinicas"></div></div>
+        </div>
+
+        <!-- TAB: Contrato (PDF) -->
+        <div class="detail-tab-panel" id="tabpanel-contrato" style="display:none;">
+          <div id="pdf-note-client" style="font-size:12.5px;color:var(--grey);margin-bottom:10px;">
+            Vista previa sin barra de descarga. Como cualquier documento visualizado en un navegador, esto es una barrera de uso, no una protección absoluta — para descargar el PDF necesitas acceso de asesor.
+          </div>
+          <div id="pdf-note-advisor" style="display:none;font-size:12.5px;color:var(--green-dark);background:#ecfdf5;padding:8px 12px;border-radius:8px;margin-bottom:10px;font-weight:700;">
+            Modo Asesor: visor completo habilitado, con opción de descarga.
+          </div>
+          <div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;" id="pdf-container">
+            <iframe id="pdf-frame" style="width:100%;height:380px;border:none;" oncontextmenu="return false;"></iframe>
+          </div>
+        </div>
+
+        <!-- Acciones cliente (público) -->
+        <div id="client-actions">
+          <div class="lock-note">
+            <b>Este plan no se puede descargar ni contratar directamente aquí.</b>
+            Los valores son referenciales. Para confirmar el precio exacto para tu grupo familiar, las condiciones vigentes y avanzar con la contratación, necesitas hablar con un asesor certificado.
+          </div>
+          <div class="nav-btns">
+            <button class="btn-ghost" onclick="goTo('results')">← Volver a resultados</button>
+            <button class="btn-primary" onclick="goTo('contact')">Quiero que un asesor me contacte →</button>
+          </div>
+        </div>
+
+        <!-- Acciones asesor -->
+        <div id="advisor-actions" style="display:none;">
+          <div class="lock-note" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">
+            <b>Acceso de asesor activo.</b>
+            Puedes ver y descargar el PDF del plan, y enviar el resumen de coberturas por correo o WhatsApp directamente al cliente.
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+            <button class="btn-sm btn-detail" style="margin-top:0;display:inline-flex;align-items:center;gap:6px;" onclick="downloadCurrentPlanPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar PDF</button>
+            <button class="btn-sm btn-detail" style="margin-top:0;background:var(--teal-light);color:var(--teal-dark);display:inline-flex;align-items:center;gap:6px;" onclick="copyCurrentPlanSummary(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect x="6" y="4" width="12" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Copiar resumen</button>
+            <button class="btn-sm btn-detail" style="margin-top:0;background:var(--blue-3);color:var(--blue-2);display:inline-flex;align-items:center;gap:6px;" onclick="sendCurrentPlanWhatsApp()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg> Enviar por WhatsApp</button>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-ghost" onclick="goTo('results')">← Volver a resultados</button>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONTACT FORM ============ -->
+  <div class="screen" id="screen-contact">
+    <div class="contact-wrap">
+      <div class="card">
+        <h2>Último paso</h2>
+        <div class="sub">Con estos datos, un asesor certificado te contactará para confirmar el plan seleccionado.</div>
+        <div class="field"><label>Nombre *</label><input type="text" id="c-nombre" placeholder="Juana"></div>
+        <div class="field"><label>Teléfono (WhatsApp) *</label><input type="tel" id="c-telefono" placeholder="+56 9 1234 5678"></div>
+        <div class="field"><label>Correo *</label><input type="email" id="c-correo" placeholder="tu@correo.com"></div>
+        <label class="protect">
+          <input type="checkbox" id="c-consent">
+          <span>Autorizo a yocotizoisapre.cl a tratar mis datos personales para ser contactado/a por un asesor respecto a este plan, según la Política de Privacidad.</span>
+        </label>
+        <div class="nav-btns">
+          <button class="btn-ghost" onclick="goTo('detail')">← Atrás</button>
+          <button class="btn-primary" onclick="submitContact()">Enviar y ser contactado →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THANKS ============ -->
+  <div class="screen" id="screen-thanks">
+    <div class="thanks-wrap">
+      <div class="thanks-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h2>¡Listo! Ya registramos tu solicitud</h2>
+      <p style="color:var(--grey);font-size:14px;line-height:1.6;">
+        Un asesor certificado te contactará por WhatsApp o correo para confirmar el valor exacto del plan
+        <b id="t-plan"></b> según tu grupo familiar, y resolver tus dudas. Este servicio es gratuito y sin compromiso.
+      </p>
+      <p style="font-size:12px;color:var(--grey);" id="t-ref"></p>
+      <button class="btn-ghost" onclick="goTo('landing')">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- ============ EXEC LOGIN ============ -->
+  <div class="screen" id="screen-exec-login">
+    <div class="exec-wrap">
+      <div class="exec-card">
+        <h2 style="margin-top:0;">Zona Ejecutivos</h2>
+        <div class="sub" style="color:var(--grey);font-size:13px;margin-bottom:18px;">Acceso exclusivo para asesores suscritos</div>
+        <div class="field"><label>Correo</label><input type="email" placeholder="asesor@correo.com"></div>
+        <div class="field"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
+        <button class="btn-primary" style="width:100%" onclick="goTo('exec-paywall')">Ingresar</button>
+        <p style="text-align:center;font-size:12.5px;color:var(--grey);margin-top:14px;">¿No tienes cuenta? <a href="#" onclick="goTo('exec-paywall');return false;" style="color:var(--blue-2);">Suscríbete aquí</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EXEC PAYWALL ============ -->
+  <div class="screen" id="screen-exec-paywall">
+    <div style="max-width:900px;margin:30px auto 20px;padding:0 20px;">
+
+      <div style="text-align:center;background:var(--blue-3);color:var(--blue-2);display:inline-block;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:14px;">Activa o renueva tu suscripción</div>
+      <h2 style="text-align:center;font-size:26px;margin:0 0 8px;">El plan <span style="color:var(--blue-2);">perfecto</span> para comparar isapres</h2>
+      <p style="text-align:center;color:var(--grey);font-size:14px;max-width:520px;margin:0 auto 24px;">Accede a más de 1.900 planes, envía propuestas personalizadas por correo o WhatsApp y descarga el PDF de cualquier plan.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:640px;margin:0 auto 26px;">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Pago 100% seguro</div>
+          <div style="font-size:11px;color:var(--grey);">SSL</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg> Activación inmediata</div>
+          <div style="font-size:11px;color:var(--grey);">Al confirmar el pago</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg> Sin permanencia</div>
+          <div style="font-size:11px;color:var(--grey);">Cancela cuando quieras</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div style="background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:22px 18px;">
+          <div style="font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.4px;">Plan Dos Días</div>
+          <p style="font-size:12.5px;color:var(--grey);min-height:34px;margin:6px 0 14px;">Para resolver una cotización puntual, sin compromiso.</p>
+          <div style="font-size:26px;font-weight:800;">$890 <span style="font-size:12px;font-weight:500;color:var(--grey);">/ dos días</span></div>
+          <div style="font-size:12.5px;line-height:2.1;margin:14px 0;color:#334155;">
+            ✓ Todos los planes, todas las isapres<br>
+            ✓ Propuestas por correo y WhatsApp<br>
+            ✓ Descarga de PDF por plan
+          </div>
+          <button class="btn-ghost" style="width:100%;" onclick="activateAdvisorMode()">Contratar plan →</button>
+        </div>
+
+        <div style="background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:22px 18px;">
+          <div style="font-size:11px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.4px;">Plan Mensual</div>
+          <p style="font-size:12.5px;color:var(--grey);min-height:34px;margin:6px 0 14px;">Ideal para partir y probar el servicio con calma.</p>
+          <div style="font-size:26px;font-weight:800;">$8.990 <span style="font-size:12px;font-weight:500;color:var(--grey);">/ mensual</span></div>
+          <div style="font-size:12.5px;line-height:2.1;margin:14px 0;color:#334155;">
+            ✓ Todos los planes, todas las isapres<br>
+            ✓ Propuestas por correo y WhatsApp<br>
+            ✓ Descarga de PDF por plan<br>
+            ✓ Soporte 24/7
+          </div>
+          <button class="btn-ghost" style="width:100%;" onclick="activateAdvisorMode()">Contratar plan →</button>
+        </div>
+
+        <div style="background:#fff;border:2px solid var(--blue-2);border-radius:16px;padding:22px 18px;position:relative;box-shadow:0 10px 26px rgba(20,80,214,.12);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue-2);color:#fff;font-size:10.5px;font-weight:700;padding:3px 12px;border-radius:20px;">MEJOR PRECIO</div>
+          <div style="font-size:11px;font-weight:700;color:var(--blue-2);text-transform:uppercase;letter-spacing:.4px;">Plan Trimestral</div>
+          <p style="font-size:12.5px;color:var(--grey);min-height:34px;margin:6px 0 14px;">Más conveniente si trabajas leads todo el mes.</p>
+          <div style="font-size:26px;font-weight:800;">$17.990 <span style="font-size:12px;font-weight:500;color:var(--grey);">/ trimestral</span></div>
+          <div style="font-size:11px;color:var(--green-dark);font-weight:700;margin-top:-10px;margin-bottom:10px;">≈ $5.997/mes · 33% más barato que el mensual</div>
+          <div style="font-size:12.5px;line-height:2.1;margin:14px 0;color:#334155;">
+            ✓ Todos los planes, todas las isapres<br>
+            ✓ Propuestas por correo y WhatsApp<br>
+            ✓ Descarga de PDF por plan<br>
+            ✓ Soporte 24/7
+          </div>
+          <button class="btn-primary" style="width:100%;" onclick="activateAdvisorMode()">Contratar plan →</button>
+        </div>
+      </div>
+
+      <p style="text-align:center;font-size:12px;color:var(--grey);margin-top:22px;">
+        <a href="#" onclick="goTo('landing');return false;" style="color:var(--grey);">← Volver al sitio</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">yocotizoisapre.cl — Demo / prototipo interno. Precios referenciales. La contratación siempre pasa por validación de un asesor.</div>
+
+<script>
+  // ---------------- Sample plan data (illustrative, same field structure as the official dataset) ----------------
+  // "coberturas" replica el patrón real observado: cada prestador asociado al plan tiene su propio
+  // nivel (Completo/Parcial) y su propio % hospitalario/ambulatorio — no es un único número genérico.
+  function cob(prestador, nivel, hosp, amb){ return {prestador, nivel, hosp, amb}; }
+
+  const PLANS = [
+    {isapre:"Banmédica", nombre:"Salud Conecta Clásico 00/2601", modalidad:"Prestador Preferente", precioUF:2.1, tope:60, grupo:"Familia emergente",
+      regiones:["Metropolitana","Valparaíso"],
+      coberturas:[ cob("Clínica Dávila","Completo",40,40), cob("Centros Médicos Red Dávila","Parcial",null,40) ]},
+    {isapre:"Banmédica", nombre:"Libre Elección Premium 300", modalidad:"Libre Elección", precioUF:4.8, tope:200, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Valparaíso","Biobío"],
+      coberturas:[ cob("Clínica Alemana","Completo",90,70), cob("Clínica Las Condes","Completo",90,70) ]},
+    {isapre:"Banmédica", nombre:"Vital 100/50", modalidad:"Prestador Preferente", precioUF:3.0, tope:120, grupo:"Familia emergente",
+      regiones:["Metropolitana"],
+      coberturas:[ cob("Clínica Dávila","Completo",100,50), cob("RedSalud","Parcial",null,45) ]},
+    {isapre:"Consalud", nombre:"Conecta Clásico", modalidad:"Prestador Preferente", precioUF:1.9, tope:50, grupo:"Hombres sin cargas",
+      regiones:["Metropolitana","Coquimbo"],
+      coberturas:[ cob("RedSalud","Completo",50,40) ]},
+    {isapre:"Consalud", nombre:"Mejor Valor Full 200", modalidad:"Libre Elección", precioUF:3.6, tope:150, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Valparaíso","Maule"],
+      coberturas:[ cob("Clínica Santa María","Completo",80,60), cob("Clínica Indisa","Completo",80,60) ]},
+    {isapre:"Consalud", nombre:"Protegido 7%", modalidad:"Cerrado", precioUF:1.4, tope:40, grupo:"Mujeres sin cargas",
+      regiones:["Metropolitana"],
+      coberturas:[ cob("RedSalud","Completo",70,30) ]},
+    {isapre:"Colmena", nombre:"Plan Básico Nacional", modalidad:"Prestador Preferente", precioUF:1.7, tope:45, grupo:"Sin grupo específico",
+      regiones:["Metropolitana","Biobío","La Araucanía"],
+      coberturas:[ cob("Clínica Indisa","Completo",45,35), cob("RedSalud","Parcial",null,30) ]},
+    {isapre:"Colmena", nombre:"Colmena Óptima 250", modalidad:"Libre Elección", precioUF:4.2, tope:180, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Valparaíso"],
+      coberturas:[ cob("Clínica Las Condes","Completo",85,65), cob("Clínica Alemana","Completo",85,65) ]},
+    {isapre:"Colmena", nombre:"Cuida+ Esencial", modalidad:"Cerrado", precioUF:1.5, tope:35, grupo:"Tercera edad",
+      regiones:["Metropolitana"],
+      coberturas:[ cob("Clínica Indisa","Completo",60,30) ]},
+    {isapre:"Cruz Blanca", nombre:"Essential Plus", modalidad:"Prestador Preferente", precioUF:2.3, tope:60, grupo:"Familia emergente",
+      regiones:["Metropolitana","Los Lagos"],
+      coberturas:[ cob("Clínica Dávila","Completo",55,45), cob("RedSalud","Parcial",null,35) ]},
+    {isapre:"Cruz Blanca", nombre:"Bienestar Total 400", modalidad:"Libre Elección", precioUF:5.4, tope:250, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Valparaíso","Biobío","Antofagasta"],
+      coberturas:[ cob("Clínica Alemana","Completo",100,80), cob("Clínica Las Condes","Completo",100,80), cob("Clínica Santa María","Completo",100,80) ]},
+    {isapre:"Cruz Blanca", nombre:"Cuidado Joven", modalidad:"Cerrado", precioUF:1.3, tope:30, grupo:"Hombres sin cargas",
+      regiones:["Metropolitana"],
+      coberturas:[ cob("RedSalud","Completo",50,30) ]},
+    {isapre:"Vida Tres", nombre:"Salud a tu Nivel 150", modalidad:"Prestador Preferente", precioUF:2.6, tope:80, grupo:"Familia emergente",
+      regiones:["Metropolitana","Maule"],
+      coberturas:[ cob("Clínica Indisa","Completo",65,50), cob("Clínica Dávila","Parcial",null,40) ]},
+    {isapre:"Vida Tres", nombre:"Nivel Max 350", modalidad:"Libre Elección", precioUF:5.0, tope:220, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Valparaíso"],
+      coberturas:[ cob("Clínica Las Condes","Completo",95,75), cob("Clínica Alemana","Completo",95,75) ]},
+    {isapre:"Nueva Masvida", nombre:"Súper Nueva Masvida", modalidad:"Prestador Preferente", precioUF:2.0, tope:55, grupo:"Familia emergente",
+      regiones:["Metropolitana","Coquimbo"],
+      coberturas:[ cob("RedSalud","Completo",50,40), cob("Clínica Dávila","Parcial",null,35) ]},
+    {isapre:"Nueva Masvida", nombre:"Cambio Total 220", modalidad:"Libre Elección", precioUF:3.9, tope:160, grupo:"Familia consolidada",
+      regiones:["Metropolitana","Biobío"],
+      coberturas:[ cob("Clínica Santa María","Completo",80,60) ]},
+    {isapre:"Esencial", nombre:"Esencial Base", modalidad:"Cerrado", precioUF:1.2, tope:25, grupo:"Sin grupo específico",
+      regiones:["Metropolitana"],
+      coberturas:[ cob("RedSalud","Completo",45,25) ]},
+    {isapre:"Esencial", nombre:"Esencial Full 180", modalidad:"Prestador Preferente", precioUF:2.4, tope:90, grupo:"Familia emergente",
+      regiones:["Metropolitana","Valparaíso"],
+      coberturas:[ cob("Clínica Indisa","Completo",70,50), cob("RedSalud","Parcial",null,40) ]},
+  ];
+
+  // headline % (lo que se muestra en la tarjeta) = valores del prestador "Completo" principal
+  PLANS.forEach(p => {
+    const principal = p.coberturas.find(c => c.nivel === 'Completo') || p.coberturas[0];
+    p.hosp = principal.hosp ?? 0;
+    p.amb = principal.amb ?? 0;
+  });
+
+  const VALOR_UF = 38500; // valor ilustrativo fijo para la demo
+  const REGIONES = [...new Set(PLANS.flatMap(p => p.regiones))];
+  const PRESTADORES = [...new Set(PLANS.flatMap(p => p.coberturas.map(c => c.prestador)))].sort();
+
+  // ---------------- Logo por isapre: color de marca + iniciales, usado como respaldo si el logo real no carga ----------------
+  const ISAPRE_COLORS = {
+    'Banmédica': '#0057a3',
+    'Consalud': '#c8102e',
+    'Colmena': '#f7941d',
+    'Cruz Blanca': '#00a0af',
+    'Vida Tres': '#7b2d8e',
+    'Nueva Masvida': '#2e7d32',
+    'Esencial': '#455a64'
+  };
+  function isapreColor(nombre){ return ISAPRE_COLORS[nombre] || '#5b6b8c'; }
+  function isapreIniciales(nombre){
+    return nombre.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  }
+  // Logo real de cada isapre, tomado directamente del archivo de logo alojado en su propio sitio oficial
+  // (uso comparativo/nominativo, igual a tu7/queplan). El servicio de favicons de Google que se probó antes
+  // no tenía buena imagen indexada para Consalud ni Nueva Masvida — por eso ahora se enlaza el logo real
+  // de cada compañía en vez de depender de un servicio de terceros.
+  // Si el logo no carga (ej. sin internet al abrir el archivo, o el sitio cambia la ruta de su logo), cae
+  // automáticamente al badge de color con iniciales.
+  const ISAPRE_LOGO_URL = {
+    'Banmédica': 'https://www.banmedica.cl/wp-content/themes/banmedica/library/images/banmedica-logo.png',
+    'Consalud': 'https://www.consalud.cl/cs/groups/public/documents/document/z2xv/z29o/~edisp/~extract/IMGLOGOHOME~2~staticrendition/highresolution.png',
+    'Colmena': 'https://www.colmena.cl/colmena-site-header/logo-colmena.svg',
+    'Cruz Blanca': 'https://www.cruzblanca.cl/cruzblanca/site/artic/20240603/imag/foto_0000000120240603164338/logo-main.svg',
+    'Vida Tres': 'https://www.vidatres.cl/wp-content/themes/vida3/library/images/vida-tres-logo.png',
+    'Nueva Masvida': 'https://www.nuevamasvida.cl/wp-content/uploads/2020/02/Logo-NMV_Color.png',
+    'Esencial': 'https://d51h1y0hva8v.cloudfront.net/images/librariesprovider12/header-2026/logotipo.svg'
+  };
+  function isapreLogoUrl(nombre){
+    return ISAPRE_LOGO_URL[nombre] || null;
+  }
+  function handleLogoError(imgEl){
+    const holder = imgEl.parentElement;
+    const nombre = imgEl.dataset.isapre;
+    holder.classList.remove('has-logo');
+    holder.style.background = '';
+    holder.style.backgroundColor = isapreColor(nombre);
+    holder.style.padding = '0';
+    holder.style.width = holder.style.height; // el logo era un chip ancho; al caer a iniciales, vuelve a círculo
+    holder.innerHTML = isapreIniciales(nombre);
+  }
+  function isapreVisual(nombre, size, cssClass){
+    size = size || 26; cssClass = cssClass || 'isapre-badge';
+    const url = isapreLogoUrl(nombre);
+    if(url){
+      // los logos reales son horizontales (wordmark), por eso el chip es más ancho que alto
+      const w = Math.round(size * 1.9);
+      return `<span class="${cssClass} has-logo" style="width:${w}px;height:${size}px;"><img data-isapre="${nombre}" src="${url}" alt="${nombre}" onerror="handleLogoError(this)"></span>`;
+    }
+    return `<span class="${cssClass}" style="width:${size}px;height:${size}px;background-color:${isapreColor(nombre)};">${isapreIniciales(nombre)}</span>`;
+  }
+  function isapreBadge(nombre, size){ return isapreVisual(nombre, size || 26, 'isapre-badge'); }
+
+  // ---------------- Precio TOTAL real por cliente (referencia: cómo lo arma tu7 / queplan.cl) ----------------
+  // El valor que paga cada persona NO es el "precio base" del plan solo: es
+  //   (precio base del plan complementario × suma de factores del grupo) + (prima GES × cantidad de beneficiarios)
+  // El GES se cobra SIEMPRE aparte, con un valor plano por beneficiario (no usa tabla de factores por edad/sexo) —
+  // así lo indica la Superintendencia de Salud. Valores de GES aquí son ilustrativos, no la tarifa oficial vigente.
+  const ISAPRE_GES_UF = {
+    'Banmédica': 0.28, 'Consalud': 0.26, 'Colmena': 0.30, 'Cruz Blanca': 0.27,
+    'Vida Tres': 0.25, 'Nueva Masvida': 0.24, 'Esencial': 0.22
+  };
+  const GES_UF_DEFAULT = 0.26;
+  // Factor promedio ilustrativo para cargas cuando el cliente no ingresó la edad exacta de cada una
+  // (el cotizador público solo pide "cantidad de cargas"; el valor exacto se ajusta con el asesor).
+  const FACTOR_CARGA_PROMEDIO = 0.65;
+
+  function gesUFForIsapre(isapre){ return ISAPRE_GES_UF[isapre] ?? GES_UF_DEFAULT; }
+
+  // arma el desglose total dado un factor total del grupo y una cantidad de beneficiarios
+  function totalPlanUF(p, factorSum, cantidadBeneficiarios){
+    const complementarioUF = p.precioUF * factorSum;
+    const gesUF = gesUFForIsapre(p.isapre) * cantidadBeneficiarios;
+    return { complementarioUF, gesUF, totalUF: complementarioUF + gesUF };
+  }
+
+  // estimación para el cliente: solo tenemos su edad + cantidad de cargas (sin edad de cada carga)
+  function estimateClientTotal(p){
+    const factorCotizante = factorForEdad(profile.edad);
+    const numCargas = profile.cargas === '3+' ? 3 : parseInt(profile.cargas) || 0;
+    const factorSum = factorCotizante + numCargas * FACTOR_CARGA_PROMEDIO;
+    const cantidadBeneficiarios = 1 + numCargas;
+    return { ...totalPlanUF(p, factorSum, cantidadBeneficiarios), factorSum, cantidadBeneficiarios, esEstimado: true };
+  }
+
+  // total exacto para el asesor: usa el panel de Beneficiarios (edades reales, un factor por persona)
+  function advisorPlanTotal(p){
+    const factorSum = beneficiarios.length ? beneficiarios.reduce((s,b)=>s+b.factor,0) : 1.0;
+    const cantidadBeneficiarios = beneficiarios.length || 1;
+    return { ...totalPlanUF(p, factorSum, cantidadBeneficiarios), factorSum, cantidadBeneficiarios, esEstimado: false };
+  }
+
+  let profile = { edad:null, region:null, renta:null, cargas:0, isapres:[], clinicas:[], modalidad:"", presupuesto:null };
+  let selectedPlan = null;
+  let advisorMode = false;
+
+  document.getElementById('stat-planes').textContent = PLANS.length;
+  document.getElementById('uf-chip-val').textContent = '$' + VALOR_UF.toLocaleString('es-CL');
+
+  // ---------------- navigation ----------------
+  function goTo(name){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-'+name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function startCotizador(){
+    if(advisorMode){ goTo('advisor-cotizador'); renderAdvisorResults(); }
+    else { goTo('step1'); }
+  }
+  function toStep2(){ goTo('step2'); }
+
+  // ---------------- Modo asesor (misma plataforma que el cliente, con extras) ----------------
+  function setAdvisorMode(on){
+    advisorMode = on;
+    document.getElementById('public-nav').style.display = on ? 'none' : 'flex';
+    document.getElementById('advisor-tools').style.display = on ? 'flex' : 'none';
+  }
+  function activateAdvisorMode(){
+    setAdvisorMode(true);
+    goTo('advisor-cotizador');
+    setupAdvisorFilterLists();
+    renderAdvisorResults();
+  }
+  function toggleTheme(){
+    document.body.classList.toggle('dark');
+  }
+
+  // ---------------- chip groups (generic single/multi select) ----------------
+  function wireChipGroup(id, multi){
+    const el = document.getElementById(id);
+    el.addEventListener('click', e => {
+      const chip = e.target.closest('.chip');
+      if(!chip) return;
+      if(multi){
+        chip.classList.toggle('selected');
+      } else {
+        el.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+      }
+    });
+  }
+  wireChipGroup('p-cargas', false);
+  wireChipGroup('p-isapres', true);
+  wireChipGroup('p-clinicas', true);
+
+  document.getElementById('p-renta').addEventListener('input', function(){
+    let v = this.value.replace(/\D/g,'');
+    this.value = v ? Number(v).toLocaleString('es-CL') : '';
+    updateLegalIndicator();
+  });
+
+  // ---------------- Calculadora del 7% legal ----------------
+  // Tope legal referencial: valor ilustrativo para esta demo (el tope real se reajusta cada año,
+  // se debe reemplazar por el valor vigente publicado por la Superintendencia de Salud).
+  const TOPE_LEGAL_UF = 4.9;
+
+  function cotizacionLegalUF(rentaClp){
+    if(!rentaClp) return null;
+    let uf = (rentaClp * 0.07) / VALOR_UF;
+    if(uf > TOPE_LEGAL_UF) uf = TOPE_LEGAL_UF;
+    return uf;
+  }
+
+  function updateLegalIndicator(){
+    const renta = parseInt(document.getElementById('p-renta').value.replace(/\D/g,'')) || null;
+    const box = document.getElementById('p-legal-indicator');
+    if(!renta){ box.style.display = 'none'; return; }
+    const uf = cotizacionLegalUF(renta);
+    const clp = Math.round(uf * VALOR_UF).toLocaleString('es-CL');
+    box.style.display = 'block';
+    box.textContent = `Tu 7% legal: ${uf.toFixed(2)} UF (≈ $${clp}/mes) — esto ya lo pagas por ley, así que un plan de hasta ese valor no te cuesta extra.`;
+  }
+
+  // build isapre filter chips once (con conteo de planes)
+  const isapreNames = [...new Set(PLANS.map(p => p.isapre))];
+  const fIsapreEl = document.getElementById('f-isapre');
+  isapreNames.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'chip'; d.dataset.v = n;
+    d.innerHTML = `<span class="isapre-dot" style="background:${isapreColor(n)};"></span>${n} (${PLANS.filter(p=>p.isapre===n).length})`;
+    fIsapreEl.appendChild(d);
+  });
+
+  // build región filter chips once
+  const fRegionEl = document.getElementById('f-region');
+  REGIONES.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'chip'; d.dataset.v = r; d.textContent = r;
+    fRegionEl.appendChild(d);
+  });
+
+  // build prestador dropdown once
+  const fPrestadorEl = document.getElementById('f-prestador');
+  PRESTADORES.forEach(pr => {
+    const opt = document.createElement('option');
+    opt.value = pr; opt.textContent = pr;
+    fPrestadorEl.appendChild(opt);
+  });
+
+  wireChipGroup('f-hosp', false);
+  wireChipGroup('f-amb', false);
+  wireChipGroup('f-isapre', true);
+  wireChipGroup('f-region', true);
+  document.getElementById('f-hosp').querySelector('.chip').classList.add('selected');
+  document.getElementById('f-amb').querySelector('.chip').classList.add('selected');
+
+  ['f-hosp','f-amb','f-isapre','f-region'].forEach(id => {
+    document.getElementById(id).addEventListener('click', renderResults);
+  });
+
+  function resetFilters(){
+    document.querySelectorAll('#f-hosp .chip, #f-amb .chip, #f-isapre .chip, #f-region .chip').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('f-hosp').querySelector('.chip').classList.add('selected');
+    document.getElementById('f-amb').querySelector('.chip').classList.add('selected');
+    document.getElementById('f-prestador').value = '';
+    const fp = document.getElementById('f-price');
+    fp.value = 6; fp.style.setProperty('--fill', '100%');
+    document.getElementById('f-price-val').textContent = '6.0';
+    document.getElementById('f-legal').checked = false;
+    renderResults();
+  }
+
+  // ---------------- collect profile & show results ----------------
+  function showResults(){
+    profile.edad = parseInt(document.getElementById('p-edad').value) || null;
+    profile.region = document.getElementById('p-region').value;
+    profile.renta = parseInt(document.getElementById('p-renta').value.replace(/\D/g,'')) || null;
+    const cargaChip = document.querySelector('#p-cargas .chip.selected');
+    profile.cargas = cargaChip ? cargaChip.dataset.v : "0";
+    profile.isapres = [...document.querySelectorAll('#p-isapres .chip.selected')].map(c=>c.dataset.v);
+    profile.clinicas = [...document.querySelectorAll('#p-clinicas .chip.selected')].map(c=>c.dataset.v);
+    profile.modalidad = document.getElementById('p-modalidad').value;
+    profile.presupuesto = parseFloat(document.getElementById('p-presupuesto').value) || null;
+
+    // si el usuario dio un presupuesto en step 2, ese manda; si no, el slider de resultados parte en 6 UF
+    const fpEl = document.getElementById('f-price');
+    if(profile.presupuesto) fpEl.value = Math.min(6, Math.max(1, profile.presupuesto));
+    document.getElementById('f-price-val').textContent = fpEl.value;
+    fpEl.style.setProperty('--fill', ((fpEl.value-fpEl.min)/(fpEl.max-fpEl.min)*100)+'%');
+
+    const legalBadge = document.getElementById('legal-badge');
+    if(profile.renta){
+      const uf = cotizacionLegalUF(profile.renta);
+      legalBadge.style.display = 'block';
+      legalBadge.textContent = `Tu 7% legal es ${uf.toFixed(2)} UF/mes (≈ $${Math.round(uf*VALOR_UF).toLocaleString('es-CL')}). Los planes hasta ese valor no aumentan tu gasto actual.`;
+    } else {
+      legalBadge.style.display = 'none';
+    }
+
+    goTo('results');
+    renderHistogram();
+    renderResults();
+  }
+
+  function planTieneClinica(p, nombreClinica){
+    return p.coberturas.some(c => c.prestador === nombreClinica);
+  }
+
+  // Cobertura hospitalaria/ambulatoria real para un prestador específico (si está seleccionado en el filtro).
+  // Sin esto, el % mostrado y filtrado siempre era el del prestador "principal" del plan, aunque el usuario
+  // hubiera elegido otra clínica — por eso clínicas como RedSalud (a menudo "Parcial", sin % hospitalario)
+  // parecían no tener datos de cobertura al filtrar por ellas.
+  function coberturaEfectiva(p, prestador){
+    if(prestador){
+      const c = p.coberturas.find(c => c.prestador === prestador);
+      if(c) return { hosp: c.hosp ?? 0, amb: c.amb ?? 0, nivel: c.nivel };
+    }
+    return { hosp: p.hosp, amb: p.amb, nivel: null };
+  }
+
+  function renderHistogram(){
+    const el = document.getElementById('f-histogram');
+    el.innerHTML = '';
+    const buckets = [1,2,3,4,5,6];
+    const max = Math.max(...buckets.map(b => PLANS.filter(p => p.precioUF > b-1 && p.precioUF <= b).length));
+    buckets.forEach(b => {
+      const count = PLANS.filter(p => p.precioUF > b-1 && p.precioUF <= b).length;
+      const h = max ? Math.max(4, Math.round((count/max)*32)) : 4;
+      const bar = document.createElement('div');
+      bar.className = 'histogram-bar';
+      bar.style.height = h + 'px';
+      bar.title = `${count} planes entre ${b-1} y ${b} UF`;
+      el.appendChild(bar);
+    });
+  }
+
+  function getFilteredPlans(){
+    const hospChip = document.querySelector('#f-hosp .chip.selected');
+    const hospMin = hospChip ? parseInt(hospChip.dataset.v) : 0;
+    const ambChip = document.querySelector('#f-amb .chip.selected');
+    const ambMin = ambChip ? parseInt(ambChip.dataset.v) : 0;
+    const isapreSel = [...document.querySelectorAll('#f-isapre .chip.selected')].map(c=>c.dataset.v.replace(/\s*\(\d+\)$/,''));
+    const regionSel = [...document.querySelectorAll('#f-region .chip.selected')].map(c=>c.dataset.v);
+    const prestadorSel = document.getElementById('f-prestador').value;
+    const precioMax = parseFloat(document.getElementById('f-price').value);
+
+    return PLANS.filter(p => {
+      if(profile.presupuesto && p.precioUF > profile.presupuesto) return false;
+      if(p.precioUF > precioMax) return false;
+      if(profile.isapres.length && !profile.isapres.includes(p.isapre)) return false;
+      if(profile.modalidad && p.modalidad !== profile.modalidad) return false;
+      if(profile.clinicas.length && !profile.clinicas.some(c => planTieneClinica(p, c))) return false;
+      if(isapreSel.length && !isapreSel.includes(p.isapre)) return false;
+      if(regionSel.length && !regionSel.some(r => p.regiones.includes(r))) return false;
+      if(prestadorSel && !planTieneClinica(p, prestadorSel)) return false;
+      // el % hosp/amb se evalúa sobre el prestador elegido (si hay uno), no sobre el prestador "principal" del plan
+      const cov = coberturaEfectiva(p, prestadorSel);
+      if(cov.hosp < hospMin) return false;
+      if(cov.amb < ambMin) return false;
+      return true;
+    });
+  }
+
+  function scoreOf(p, prestadorSel){
+    const cov = coberturaEfectiva(p, prestadorSel);
+    let score = (cov.hosp*0.5 + cov.amb*0.5);
+    if(profile.presupuesto){
+      const proximity = 1 - Math.min(Math.abs(profile.presupuesto - p.precioUF) / profile.presupuesto, 1);
+      score += proximity * 30;
+    }
+    if(profile.clinicas.length && profile.clinicas.some(c => planTieneClinica(p, c))) score += 15;
+    return score;
+  }
+
+  function renderResults(){
+    let list = getFilteredPlans();
+    const sortMode = document.getElementById('sort-select').value;
+    const prestadorSel = document.getElementById('f-prestador').value;
+    if(sortMode === 'fit') list.sort((a,b)=>scoreOf(b,prestadorSel)-scoreOf(a,prestadorSel));
+    if(sortMode === 'price-asc') list.sort((a,b)=>a.precioUF-b.precioUF);
+    if(sortMode === 'hosp-desc') list.sort((a,b)=>coberturaEfectiva(b,prestadorSel).hosp-coberturaEfectiva(a,prestadorSel).hosp);
+    if(sortMode === 'amb-desc') list.sort((a,b)=>coberturaEfectiva(b,prestadorSel).amb-coberturaEfectiva(a,prestadorSel).amb);
+
+    document.getElementById('results-count').textContent = list.length + ' plan' + (list.length===1?'':'es') + ' compatible' + (list.length===1?'':'s');
+    const container = document.getElementById('results-list');
+    container.innerHTML = '';
+
+    if(!list.length){
+      container.innerHTML = '<div class="no-results">No encontramos planes con esos filtros. Prueba ampliando tu presupuesto o quitando algún filtro.</div>';
+      return;
+    }
+
+    if(advisorMode){ renderResultsAdvisor(list, container, prestadorSel); return; }
+
+    const ajustarLegal = document.getElementById('f-legal').checked;
+    const cotizacion = ajustarLegal ? cotizacionLegalUF(profile.renta) : null;
+
+    list.forEach((p, idx) => {
+      const t = estimateClientTotal(p);
+      const totalClp = Math.round(t.totalUF * VALOR_UF).toLocaleString('es-CL');
+      const prestadoresUnicos = [...new Set(p.coberturas.map(c=>c.prestador))];
+      const grupoTxt = t.cantidadBeneficiarios === 1 ? '1 persona' : `${t.cantidadBeneficiarios} personas`;
+      const cov = coberturaEfectiva(p, prestadorSel);
+      const covNote = prestadorSel ? `<div style="font-size:10px;color:var(--grey);margin-top:2px;">según ${prestadorSel}</div>` : '';
+
+      let legalLine = '';
+      if(ajustarLegal){
+        if(!profile.renta){
+          legalLine = `<div style="font-size:11.5px;color:var(--amber);margin-top:4px;">Ingresa tu renta para ver cuánto pagarías tú</div>`;
+        } else {
+          const tuPagasUF = Math.max(0, t.totalUF - cotizacion);
+          const tuPagasClp = Math.round(tuPagasUF * VALOR_UF).toLocaleString('es-CL');
+          legalLine = tuPagasUF === 0
+            ? `<div style="font-size:11.5px;color:var(--green-dark);font-weight:700;margin-top:4px;">Cubierto por tu 7% legal</div>`
+            : `<div style="font-size:11.5px;color:var(--grey);margin-top:4px;">Tú pagas: <b style="color:var(--dark);">$${tuPagasClp}</b>/mes de tu bolsillo</div>`;
+        }
+      }
+
+      const div = document.createElement('div');
+      div.className = 'plan-card';
+      div.innerHTML = `
+        <div class="plan-left">
+          <div class="plan-isapre">${isapreBadge(p.isapre)}${p.isapre}</div>
+          <div class="plan-name">${p.nombre}</div>
+          <div class="cov-row">
+            <div class="cov"><div class="lbl"><span>Hospitalaria</span><span>${cov.hosp}%</span></div><div class="bar hosp"><span style="width:${cov.hosp}%"></span></div></div>
+            <div class="cov"><div class="lbl"><span>Ambulatoria</span><span>${cov.amb}%</span></div><div class="bar amb"><span style="width:${cov.amb}%"></span></div></div>
+            ${covNote}
+          </div>
+          <div class="tags">
+            <span class="tag">${p.modalidad}</span>
+            ${prestadoresUnicos.map(c=>`<span class="tag">${c}</span>`).join('')}
+          </div>
+        </div>
+        <div class="plan-right">
+          <div>
+            ${idx===0 && sortMode==='fit' ? '<div class="badge-fit">Buen ajuste para tu perfil</div>' : ''}
+            <div class="plan-price"><b>${t.totalUF.toFixed(2)} UF</b><span>≈ $${totalClp} / mes · ${grupoTxt}</span></div>
+            <div style="font-size:10.5px;color:var(--grey);margin-top:2px;">Incluye plan (${t.complementarioUF.toFixed(2)} UF) + GES (${t.gesUF.toFixed(2)} UF) · estimado, se confirma con tu asesor</div>
+            ${legalLine}
+          </div>
+          <button class="btn-sm btn-detail" data-idx="${PLANS.indexOf(p)}">Ver detalle</button>
+        </div>`;
+      div.querySelector('.btn-detail').addEventListener('click', () => openDetail(PLANS.indexOf(p)));
+      container.appendChild(div);
+    });
+  }
+
+  // ---------------- Vista asesor: lista compacta con acciones rápidas (distinta a la del cliente) ----------------
+  function renderResultsAdvisor(list, container, prestadorSel){
+    list.forEach((p, i) => {
+      const idx = PLANS.indexOf(p);
+      const t = advisorPlanTotal(p);
+      const totalClp = Math.round(t.totalUF * VALOR_UF).toLocaleString('es-CL');
+      const etiqueta = beneficiarios.length ? `Total (${t.cantidadBeneficiarios})` : 'Desde (1 pers.)';
+      const cov = coberturaEfectiva(p, prestadorSel);
+      const row = document.createElement('div');
+      row.className = 'adv-row';
+      row.innerHTML = `
+        <div class="adv-num">${i+1}</div>
+        ${isapreVisual(p.isapre, 36, 'adv-logo')}
+        <div class="adv-info">
+          <b>${p.isapre} — ${p.nombre}</b>
+          <div class="adv-tags"><span>${p.modalidad}</span><span>Hosp ${cov.hosp}%</span><span>Amb ${cov.amb}%</span></div>
+        </div>
+        <div class="adv-price" title="Plan ${t.complementarioUF.toFixed(2)} UF + GES ${t.gesUF.toFixed(2)} UF">
+          <div class="from">${etiqueta}</div>
+          <b>${t.totalUF.toFixed(2)} UF</b>
+          <span>$${totalClp}</span>
+        </div>
+        <div class="adv-actions">
+          <button class="adv-ic c-wa" title="Enviar por WhatsApp" onclick="quickWhatsApp(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg></button>
+          <button class="adv-ic c-pdf" title="Ver / descargar PDF" onclick="quickPDF(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg></button>
+          <button class="adv-ic c-price" title="Ver detalle" onclick="quickDetail(${idx})">$</button>
+          <button class="adv-ic c-cov" title="Coberturas por prestador" onclick="quickCoberturas(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></button>
+        </div>`;
+      container.appendChild(row);
+    });
+  }
+  function quickWhatsApp(idx){ selectedPlan = PLANS[idx]; sendCurrentPlanWhatsApp(); }
+  function quickPDF(idx){ openDetail(idx); switchDetailTab('contrato'); }
+  function quickDetail(idx){ openDetail(idx); switchDetailTab('resumen'); }
+  function quickCoberturas(idx){ openDetail(idx); switchDetailTab('coberturas'); }
+
+  // ---------------- Cotizador de asesor: todo en una sola pantalla ----------------
+  // Tabla de factores ilustrativa por tramo etario (no es la tabla oficial real,
+  // solo referencial para esta demo — calibrada aprox. a lo observado en tu7).
+  function factorForEdad(edad){
+    if(edad == null || isNaN(edad)) return 1.0;
+    if(edad <= 2) return 0.40;
+    if(edad <= 5) return 0.60;
+    if(edad <= 17) return 0.70;
+    if(edad <= 29) return 0.70;
+    if(edad <= 39) return 1.00;
+    if(edad <= 49) return 1.40;
+    if(edad <= 59) return 2.00;
+    if(edad <= 69) return 2.80;
+    return 3.50;
+  }
+
+  let beneficiarios = [];
+
+  function addBeneficiario(tipo){
+    const input = document.getElementById('af-edad-input');
+    const edad = parseInt(input.value);
+    if(isNaN(edad) || edad < 0 || edad > 110){
+      input.focus();
+      return;
+    }
+    beneficiarios.push({ tipo, edad, factor: factorForEdad(edad) });
+    input.value = '';
+    renderBeneficiarios();
+  }
+
+  function removeBeneficiario(i){
+    beneficiarios.splice(i, 1);
+    renderBeneficiarios();
+  }
+
+  function renderBeneficiarios(){
+    const el = document.getElementById('af-beneficiarios-list');
+    el.innerHTML = '';
+    beneficiarios.forEach((b, i) => {
+      const div = document.createElement('div');
+      div.className = 'benef-chip';
+      div.innerHTML = `
+        <span class="role ${b.tipo}">${b.tipo === 'COT' ? 'COTIZANTE' : 'CARGA'}</span>
+        <span>${b.edad} años</span>
+        <span style="margin-left:auto;color:var(--grey);">factor ${b.factor.toFixed(2)}</span>
+        <span class="x" onclick="removeBeneficiario(${i})">✕</span>`;
+      el.appendChild(div);
+    });
+    const total = beneficiarios.reduce((s,b)=>s+b.factor, 0);
+    document.getElementById('af-total-factores').textContent = total.toFixed(2);
+  }
+
+  // checklists de Isapres / Zonas / Tipo de plan (se construyen una vez al activar modo asesor)
+  let advisorListsBuilt = false;
+  function setupAdvisorFilterLists(){
+    if(advisorListsBuilt) return;
+    advisorListsBuilt = true;
+
+    const isapreNames = [...new Set(PLANS.map(p => p.isapre))];
+    const isapreEl = document.getElementById('af-isapre-list');
+    isapreNames.forEach(n => {
+      const planesIsapre = PLANS.filter(p => p.isapre === n);
+      const count = planesIsapre.length;
+      // "factor" ilustrativo por isapre = precio base promedio de sus planes (no es el índice interno real de tu7)
+      const factorProm = planesIsapre.reduce((s,p)=>s+p.precioUF,0) / count;
+      const row = document.createElement('label');
+      row.className = 'check-row';
+      row.innerHTML = `<input type="checkbox" class="af-isapre-cb" value="${n}" checked onchange="renderAdvisorResults()"><span class="isapre-dot" style="background:${isapreColor(n)};"></span><span class="rname">${n}<span class="isapre-factor">[${factorProm.toFixed(2)}]</span></span><span class="count">${count}</span>`;
+      isapreEl.appendChild(row);
+    });
+    document.getElementById('af-total-planes-foot').textContent = PLANS.length;
+
+    // dropdown de prestadores (igual al del cotizador cliente)
+    const afPrestadorEl = document.getElementById('af-prestador');
+    PRESTADORES.forEach(pr => {
+      const opt = document.createElement('option');
+      opt.value = pr; opt.textContent = pr;
+      afPrestadorEl.appendChild(opt);
+    });
+
+    const regionEl = document.getElementById('af-region-list');
+    REGIONES.forEach(r => {
+      const count = PLANS.filter(p => p.regiones.includes(r)).length;
+      const row = document.createElement('label');
+      row.className = 'check-row';
+      row.innerHTML = `<input type="checkbox" class="af-region-cb" value="${r}" checked onchange="renderAdvisorResults()"><span class="rname">${r}</span><span class="count">${count}</span>`;
+      regionEl.appendChild(row);
+    });
+
+    const modalidades = [...new Set(PLANS.map(p => p.modalidad))];
+    const modEl = document.getElementById('af-modalidad-list');
+    modalidades.forEach(m => {
+      const count = PLANS.filter(p => p.modalidad === m).length;
+      const row = document.createElement('label');
+      row.className = 'check-row';
+      row.innerHTML = `<input type="checkbox" class="af-modalidad-cb" value="${m}" checked onchange="renderAdvisorResults()"><span class="rname">${m}</span><span class="count">${count}</span>`;
+      modEl.appendChild(row);
+    });
+
+    wireChipGroup('af-hosp', false);
+    wireChipGroup('af-amb', false);
+    document.getElementById('af-hosp').querySelector('.chip').classList.add('selected');
+    document.getElementById('af-amb').querySelector('.chip').classList.add('selected');
+    ['af-hosp','af-amb'].forEach(id => {
+      document.getElementById(id).addEventListener('click', renderAdvisorResults);
+    });
+  }
+
+  function getAdvisorFilteredPlans(){
+    const search = document.getElementById('af-search').value.trim().toLowerCase();
+    const precioMax = parseFloat(document.getElementById('af-price').value);
+    const ajustarLegal = document.getElementById('af-legal').checked;
+    const hospChip = document.querySelector('#af-hosp .chip.selected');
+    const hospMin = hospChip ? parseInt(hospChip.dataset.v) : 0;
+    const ambChip = document.querySelector('#af-amb .chip.selected');
+    const ambMin = ambChip ? parseInt(ambChip.dataset.v) : 0;
+    const isapreSel = [...document.querySelectorAll('.af-isapre-cb:checked')].map(c=>c.value);
+    const regionSel = [...document.querySelectorAll('.af-region-cb:checked')].map(c=>c.value);
+    const modalidadSel = [...document.querySelectorAll('.af-modalidad-cb:checked')].map(c=>c.value);
+    const prestadorSel = document.getElementById('af-prestador').value;
+
+    return PLANS.filter(p => {
+      if(search && !(`${p.isapre} ${p.nombre}`.toLowerCase().includes(search))) return false;
+      if(p.precioUF > precioMax) return false;
+      if(isapreSel.length && !isapreSel.includes(p.isapre)) return false;
+      if(regionSel.length && !regionSel.some(r => p.regiones.includes(r))) return false;
+      if(modalidadSel.length && !modalidadSel.includes(p.modalidad)) return false;
+      if(prestadorSel && !planTieneClinica(p, prestadorSel)) return false;
+      // igual que en el cotizador cliente: el % se evalúa sobre el prestador elegido, no el "principal"
+      const cov = coberturaEfectiva(p, prestadorSel);
+      if(cov.hosp < hospMin) return false;
+      if(cov.amb < ambMin) return false;
+      if(ajustarLegal && beneficiarios.length === 0) return false;
+      return true;
+    });
+  }
+
+  // colapsar/expandir una tarjeta de filtro (estilo tu7)
+  function toggleFilterCard(headEl){
+    headEl.classList.toggle('collapsed');
+  }
+
+  function renderAdvisorResults(){
+    setupAdvisorFilterLists();
+    const total = PLANS.length;
+    let list = getAdvisorFilteredPlans();
+
+    const sortMode = document.getElementById('af-sort').value;
+    const prestadorSel = document.getElementById('af-prestador').value;
+    // ordenar por el TOTAL real (plan + GES para el grupo cargado), no solo el precio base
+    if(sortMode === 'price-asc') list.sort((a,b)=>advisorPlanTotal(a).totalUF-advisorPlanTotal(b).totalUF);
+    if(sortMode === 'price-desc') list.sort((a,b)=>advisorPlanTotal(b).totalUF-advisorPlanTotal(a).totalUF);
+    if(sortMode === 'hosp-desc') list.sort((a,b)=>coberturaEfectiva(b,prestadorSel).hosp-coberturaEfectiva(a,prestadorSel).hosp);
+    if(sortMode === 'amb-desc') list.sort((a,b)=>coberturaEfectiva(b,prestadorSel).amb-coberturaEfectiva(a,prestadorSel).amb);
+
+    document.getElementById('af-count').textContent = list.length;
+    document.getElementById('af-total-planes').textContent = total;
+
+    // chips de filtros activos
+    const active = [];
+    document.querySelectorAll('.af-isapre-cb').forEach(c=>{ if(!c.checked) active.push('sin ' + c.value); });
+    if(beneficiarios.length) active.push(`${beneficiarios.length} beneficiario${beneficiarios.length===1?'':'s'}`);
+    if(document.getElementById('af-legal').checked) active.push('ajuste 7%');
+    const afEl = document.getElementById('af-active-filters');
+    afEl.innerHTML = active.length
+      ? active.map(a=>`<span class="filter-chip">${a}</span>`).join('')
+      : '<span style="color:var(--grey);font-size:11.5px;">ninguno</span>';
+
+    const container = document.getElementById('af-results-list');
+    container.innerHTML = '';
+    if(!list.length){
+      container.innerHTML = '<div class="no-results">No hay planes con esos filtros.</div>';
+      return;
+    }
+    renderResultsAdvisor(list, container, prestadorSel);
+  }
+
+  function resetAdvisorFilters(){
+    document.getElementById('af-search').value = '';
+    const ap = document.getElementById('af-price');
+    ap.value = 9; ap.style.setProperty('--fill', '100%');
+    document.getElementById('af-price-val').textContent = '9.0';
+    document.getElementById('af-legal').checked = false;
+    document.getElementById('af-sort').value = 'price-asc';
+    document.getElementById('af-prestador').value = '';
+    document.querySelectorAll('.af-isapre-cb, .af-region-cb, .af-modalidad-cb').forEach(c=>c.checked=true);
+    document.querySelectorAll('#af-hosp .chip, #af-amb .chip').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('af-hosp').querySelector('.chip').classList.add('selected');
+    document.getElementById('af-amb').querySelector('.chip').classList.add('selected');
+    beneficiarios = [];
+    renderBeneficiarios();
+    renderAdvisorResults();
+  }
+
+  function openDetail(idx){
+    selectedPlan = PLANS[idx];
+    document.getElementById('d-isapre').textContent = selectedPlan.isapre;
+    document.getElementById('d-nombre').textContent = selectedPlan.nombre;
+    const dt = advisorMode ? advisorPlanTotal(selectedPlan) : estimateClientTotal(selectedPlan);
+    const dtClp = Math.round(dt.totalUF * VALOR_UF).toLocaleString('es-CL');
+    document.getElementById('d-price').textContent = dt.totalUF.toFixed(2) + ' UF / mes ≈ $' + dtClp + (dt.esEstimado ? ' (estimado)' : '');
+    document.getElementById('d-total').textContent = dt.totalUF.toFixed(2) + ' UF (≈ $' + dtClp + '/mes)';
+    document.getElementById('d-total-breakdown').textContent =
+      `Plan complementario: ${dt.complementarioUF.toFixed(2)} UF + GES: ${dt.gesUF.toFixed(2)} UF · ${dt.cantidadBeneficiarios} beneficiario${dt.cantidadBeneficiarios===1?'':'s'}`
+      + (dt.esEstimado ? ' · estimado, se confirma con tu asesor' : ' · calculado con las edades reales del grupo');
+    document.getElementById('d-hosp').textContent = selectedPlan.hosp + '%';
+    document.getElementById('d-amb').textContent = selectedPlan.amb + '%';
+    document.getElementById('d-modalidad').textContent = selectedPlan.modalidad;
+    document.getElementById('d-tope').textContent = selectedPlan.tope + ' UF/año';
+
+    const prestadoresUnicos = [...new Set(selectedPlan.coberturas.map(c=>c.prestador))];
+    document.getElementById('d-clinicas').innerHTML = prestadoresUnicos.map(c=>`<span class="tag">${c}</span>`).join('');
+
+    // desglose por prestador (tab Coberturas) — igual al patrón real: cada prestador con su propio % y nivel
+    const list = document.getElementById('d-coberturas-list');
+    list.innerHTML = selectedPlan.coberturas.map(c => `
+      <div class="detail-box" style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <b style="font-size:14px;">${c.prestador}</b>
+          <span class="tag" style="background:${c.nivel==='Completo'?'#ecfdf5':'#fef3c7'};color:${c.nivel==='Completo'?'#0a8f57':'#92400e'};">${c.nivel}</span>
+        </div>
+        <div class="cov-row" style="margin-bottom:0;">
+          <div class="cov">
+            <div class="lbl"><span>Hospitalaria</span><span>${c.hosp===null?'No aplica':c.hosp+'%'}</span></div>
+            <div class="bar hosp"><span style="width:${c.hosp||0}%"></span></div>
+          </div>
+          <div class="cov">
+            <div class="lbl"><span>Ambulatoria</span><span>${c.amb===null?'No aplica':c.amb+'%'}</span></div>
+            <div class="bar amb"><span style="width:${c.amb||0}%"></span></div>
+          </div>
+        </div>
+      </div>`).join('');
+
+    // mostrar acciones según el modo (cliente vs asesor) — el cliente NO tiene acceso al PDF, solo asesores
+    document.getElementById('client-actions').style.display = advisorMode ? 'none' : 'block';
+    document.getElementById('advisor-actions').style.display = advisorMode ? 'block' : 'none';
+    document.getElementById('pdf-note-client').style.display = advisorMode ? 'none' : 'block';
+    document.getElementById('pdf-note-advisor').style.display = advisorMode ? 'block' : 'none';
+    document.getElementById('tab-contrato-btn').style.display = advisorMode ? 'block' : 'none';
+
+    // el iframe del PDF se genera recién al abrir la pestaña Contrato (evita generar PDFs de más)
+    document.getElementById('pdf-frame').removeAttribute('src');
+
+    switchDetailTab('coberturas');
+    goTo('detail');
+  }
+
+  function switchDetailTab(tab){
+    document.querySelectorAll('.detail-tab').forEach(t => {
+      const active = t.dataset.tab === tab;
+      t.style.color = active ? 'var(--blue-2)' : 'var(--grey)';
+      t.style.borderBottomColor = active ? 'var(--blue-2)' : 'transparent';
+    });
+    ['coberturas','resumen','contrato'].forEach(t => {
+      document.getElementById('tabpanel-'+t).style.display = (t===tab) ? 'block' : 'none';
+    });
+    if(tab === 'contrato' && selectedPlan){
+      const frame = document.getElementById('pdf-frame');
+      const url = generatePlanPDF(selectedPlan).output('bloburl');
+      // en modo cliente ocultamos la barra de herramientas (sin botón de descarga visible);
+      // en modo asesor se deja la barra completa del visor, que sí permite descargar/imprimir.
+      frame.src = url + (advisorMode ? '' : '#toolbar=0&navpanes=0');
+    }
+  }
+
+  // ---------------- PDF con formato tipo "cartola de plan" + resumen para WhatsApp ----------------
+  function planSummaryText(p){
+    const t = advisorPlanTotal(p);
+    const totalClp = Math.round(t.totalUF * VALOR_UF).toLocaleString('es-CL');
+    const cobLines = p.coberturas.map(c =>
+      `• ${c.prestador} (${c.nivel}): Hospitalaria ${c.hosp===null?'No aplica':c.hosp+'%'} / Ambulatoria ${c.amb===null?'No aplica':c.amb+'%'}`
+    ).join('\n');
+    return `*${p.isapre} — ${p.nombre}*\n`
+      + `Modalidad: ${p.modalidad}\n`
+      + `Plan complementario: ${t.complementarioUF.toFixed(2)} UF · GES: ${t.gesUF.toFixed(2)} UF (${t.cantidadBeneficiarios} beneficiario${t.cantidadBeneficiarios===1?'':'s'})\n`
+      + `*Total a pagar: ${t.totalUF.toFixed(2)} UF (≈ $${totalClp}/mes)*\n`
+      + `Tope anual: ${p.tope} UF\n\n`
+      + `Coberturas por prestador:\n${cobLines}\n\n`
+      + `Cotización referencial enviada por tu asesor yocotizoisapre.cl. Valores finales sujetos a confirmación.`;
+  }
+
+  function generatePlanPDF(p){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const pageW = 210, marginX = 16;
+    const price = Math.round(p.precioUF*VALOR_UF).toLocaleString('es-CL');
+
+    // ---- encabezado ----
+    doc.setFillColor(20,80,214); doc.rect(0,0,pageW,32,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.text('YOCOTIZOISAPRE.CL', marginX, 12);
+    doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.text('Cartola referencial de plan de salud', marginX, 18);
+    doc.setFontSize(15); doc.setFont(undefined,'bold'); doc.text(`${p.isapre} — ${p.nombre}`, marginX, 27);
+
+    // ---- datos del plan ----
+    let y = 42;
+    doc.setTextColor(15,23,42);
+    doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.text('Datos del plan', marginX, y); y += 2;
+    doc.setDrawColor(226,232,240); doc.line(marginX, y, pageW-marginX, y); y += 7;
+
+    doc.setFont(undefined,'normal'); doc.setFontSize(10);
+    const t = advisorPlanTotal(p);
+    const totalClp = Math.round(t.totalUF*VALOR_UF).toLocaleString('es-CL');
+    const datos = [
+      ['Modalidad', p.modalidad],
+      ['Precio base plan', `${p.precioUF} UF/mes (≈ $${price})`],
+      ['Plan complementario', `${t.complementarioUF.toFixed(2)} UF/mes`],
+      ['GES', `${t.gesUF.toFixed(2)} UF/mes (${t.cantidadBeneficiarios} benef.)`],
+      ['Total a pagar', `${t.totalUF.toFixed(2)} UF/mes (≈ $${totalClp})`],
+      ['Tope anual', `${p.tope} UF`],
+      ['Grupo objetivo', p.grupo],
+      ['Regiones', p.regiones.join(', ')],
+    ];
+    datos.forEach(([k,v]) => {
+      doc.setFont(undefined,'bold'); doc.text(k+':', marginX, y);
+      doc.setFont(undefined,'normal'); doc.text(String(v), marginX+42, y);
+      y += 6.5;
+    });
+
+    // ---- tabla de coberturas por prestador ----
+    y += 6;
+    doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.text('Coberturas por prestador', marginX, y); y += 2;
+    doc.line(marginX, y, pageW-marginX, y); y += 8;
+
+    const colX = [marginX, marginX+70, marginX+108, marginX+146];
+    const colW = [70, 38, 38, 40];
+    doc.setFillColor(233,240,255);
+    doc.rect(marginX, y-5, pageW-marginX*2, 8, 'F');
+    doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(20,80,214);
+    doc.text('Prestador', colX[0]+2, y);
+    doc.text('Nivel', colX[1]+2, y);
+    doc.text('Hospitalaria', colX[2]+2, y);
+    doc.text('Ambulatoria', colX[3]+2, y);
+    y += 8;
+
+    doc.setFont(undefined,'normal'); doc.setTextColor(15,23,42);
+    p.coberturas.forEach((c, i) => {
+      if(i % 2 === 1){ doc.setFillColor(248,250,252); doc.rect(marginX, y-5, pageW-marginX*2, 7.5, 'F'); }
+      doc.text(c.prestador, colX[0]+2, y);
+      doc.text(c.nivel, colX[1]+2, y);
+      doc.text(c.hosp===null?'No aplica':c.hosp+'%', colX[2]+2, y);
+      doc.text(c.amb===null?'No aplica':c.amb+'%', colX[3]+2, y);
+      y += 7.5;
+    });
+    doc.setDrawColor(226,232,240);
+    doc.rect(marginX, y-8-p.coberturas.length*7.5, pageW-marginX*2, 8+p.coberturas.length*7.5);
+
+    // ---- footer ----
+    y = 280;
+    doc.setFontSize(8); doc.setTextColor(120);
+    doc.text('Documento referencial generado por yocotizoisapre.cl a partir de datos ilustrativos.', marginX, y);
+    doc.text('No constituye contrato de salud ni cotización final; valores sujetos a confirmación por un asesor certificado.', marginX, y+4);
+
+    return doc;
+  }
+
+  function downloadCurrentPlanPDF(){
+    if(!selectedPlan) return;
+    generatePlanPDF(selectedPlan).save(`${selectedPlan.isapre}_${selectedPlan.nombre}.pdf`.replace(/\s+/g,'_'));
+  }
+
+  function copyCurrentPlanSummary(btn){
+    if(!selectedPlan) return;
+    const text = planSummaryText(selectedPlan);
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => btn.textContent = original, 1500);
+    }).catch(() => alert('No se pudo copiar automáticamente. Selecciona y copia el texto manualmente.'));
+  }
+
+  function sendCurrentPlanWhatsApp(){
+    if(!selectedPlan) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(planSummaryText(selectedPlan)), '_blank');
+  }
+
+  function submitContact(){
+    const nombre = document.getElementById('c-nombre').value.trim();
+    const tel = document.getElementById('c-telefono').value.trim();
+    const email = document.getElementById('c-correo').value.trim();
+    const consent = document.getElementById('c-consent').checked;
+    if(!nombre || !tel || !email){ alert('Completa nombre, teléfono y correo para continuar.'); return; }
+    if(!consent){ alert('Necesitamos tu autorización para poder contactarte.'); return; }
+
+    document.getElementById('t-plan').textContent = selectedPlan ? (selectedPlan.isapre + ' — ' + selectedPlan.nombre) : '';
+    document.getElementById('t-ref').textContent = 'Ref: YCI-' + Math.floor(100000+Math.random()*899999);
+    goTo('thanks');
+  }
+</script>
+
+</body>
+</html>
